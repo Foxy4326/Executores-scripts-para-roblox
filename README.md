@@ -165,6 +165,7 @@
             transition: opacity 0.3s;
             border: none;
             cursor: pointer;
+            text-align: center;
         }
         
         .btn:hover {
@@ -348,6 +349,12 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1.5rem;
+        }
+        
+        .download-btn {
+            display: block;
+            width: 100%;
+            margin-bottom: 1rem;
         }
         
         @media (max-width: 768px) {
@@ -678,9 +685,9 @@
                 <div class="card-body">
                     <p>${item.description}</p>
                     <p class="date">${dateText}</p>
-                    <a href="#" class="btn" data-file="${item.fileName}">
+                    <button class="btn download-btn download-button" data-filename="${item.fileName}" data-type="${item.type}">
                         ${item.type === 'executor' ? 'Baixar APK' : 'Baixar Script'}
-                    </a>
+                    </button>
                     <div class="card-actions">
                         <button class="btn btn-warning btn-small edit-btn" data-id="${item.id}">Editar</button>
                         <button class="btn btn-danger btn-small delete-btn" data-id="${item.id}">Excluir</button>
@@ -689,8 +696,13 @@
             `;
             
             // Adicionar eventos aos botões
+            const downloadBtn = card.querySelector('.download-button');
             const editBtn = card.querySelector('.edit-btn');
             const deleteBtn = card.querySelector('.delete-btn');
+            
+            downloadBtn.addEventListener('click', function() {
+                simulateDownload(item.fileName, item.type);
+            });
             
             editBtn.addEventListener('click', function() {
                 showEditForm(item.id);
@@ -701,6 +713,37 @@
             });
             
             return card;
+        }
+        
+        // Simular download
+        function simulateDownload(fileName, type) {
+            // Criar um link de download simulado
+            const link = document.createElement('a');
+            
+            // Determinar a extensão do arquivo baseada no tipo
+            const extension = type === 'executor' ? '.apk' : '.txt';
+            const fullFileName = fileName.endsWith(extension) ? fileName : fileName + extension;
+            
+            // Criar um blob vazio para simular o arquivo
+            const blob = new Blob(['Conteúdo simulado do arquivo ' + fullFileName], { type: 'application/octet-stream' });
+            const url = URL.createObjectURL(blob);
+            
+            link.href = url;
+            link.download = fullFileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            // Mostrar mensagem de download
+            uploadMessage.textContent = `Download iniciado: ${fullFileName}`;
+            uploadMessage.classList.remove('alert-error');
+            uploadMessage.classList.add('alert-success');
+            uploadMessage.classList.remove('hidden');
+            
+            setTimeout(() => {
+                uploadMessage.classList.add('hidden');
+            }, 3000);
         }
         
         // Mostrar formulário de edição
