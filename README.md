@@ -357,6 +357,14 @@
             margin-bottom: 1rem;
         }
         
+        .file-info {
+            background: #f8f9fa;
+            padding: 0.5rem;
+            border-radius: 5px;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
         @media (max-width: 768px) {
             .header-content {
                 flex-direction: column;
@@ -490,6 +498,7 @@
                             <p>Clique para selecionar ou arraste o arquivo aqui</p>
                             <input type="file" id="edit-file" style="display: none;">
                         </div>
+                        <div id="edit-file-info" class="file-info hidden"></div>
                     </div>
                     
                     <button type="submit" class="btn btn-warning">Salvar Alterações</button>
@@ -524,6 +533,7 @@
                             <p>Clique para selecionar ou arraste o arquivo aqui</p>
                             <input type="file" id="file" style="display: none;" required>
                         </div>
+                        <div id="file-info" class="file-info hidden"></div>
                     </div>
                     
                     <button type="submit" class="btn">Publicar Conteúdo</button>
@@ -567,8 +577,10 @@
         const logoutAdminBtn = document.getElementById('logout-admin');
         const fileUploadArea = document.getElementById('file-upload-area');
         const fileInput = document.getElementById('file');
+        const fileInfo = document.getElementById('file-info');
         const editFileUploadArea = document.getElementById('edit-file-upload-area');
         const editFileInput = document.getElementById('edit-file');
+        const editFileInfo = document.getElementById('edit-file-info');
         const executorsGrid = document.getElementById('executors-grid');
         const scriptsGrid = document.getElementById('scripts-grid');
         const uploadFormContainer = document.getElementById('upload-form-container');
@@ -603,13 +615,14 @@
         }
         
         // Adicionar item publicado na lista
-        function addPublishedItem(title, description, type, fileName) {
+        function addPublishedItem(title, description, type, fileName, fileData) {
             const newItem = {
                 id: Date.now(),
                 title,
                 description,
                 type,
                 fileName,
+                fileData,
                 date: new Date().toLocaleDateString('pt-BR'),
                 lastUpdate: new Date().toLocaleDateString('pt-BR')
             };
@@ -622,13 +635,14 @@
         }
         
         // Atualizar item existente
-        function updatePublishedItem(id, title, description, type, fileName) {
+        function updatePublishedItem(id, title, description, type, fileName, fileData) {
             const itemIndex = publishedItems.findIndex(item => item.id === id);
             if (itemIndex !== -1) {
                 publishedItems[itemIndex].title = title;
                 publishedItems[itemIndex].description = description;
                 publishedItems[itemIndex].type = type;
                 publishedItems[itemIndex].fileName = fileName;
+                publishedItems[itemIndex].fileData = fileData || publishedItems[itemIndex].fileData;
                 publishedItems[itemIndex].lastUpdate = new Date().toLocaleDateString('pt-BR');
                 
                 localStorage.setItem('publishedItems', JSON.stringify(publishedItems));
@@ -685,7 +699,7 @@
                 <div class="card-body">
                     <p>${item.description}</p>
                     <p class="date">${dateText}</p>
-                    <button class="btn download-btn download-button" data-filename="${item.fileName}" data-type="${item.type}">
+                    <button class="btn download-btn download-button" data-id="${item.id}">
                         ${item.type === 'executor' ? 'Baixar APK' : 'Baixar Script'}
                     </button>
                     <div class="card-actions">
@@ -701,7 +715,7 @@
             const deleteBtn = card.querySelector('.delete-btn');
             
             downloadBtn.addEventListener('click', function() {
-                simulateDownload(item.fileName, item.type);
+                downloadItem(item.id);
             });
             
             editBtn.addEventListener('click', function() {
@@ -715,35 +729,49 @@
             return card;
         }
         
-        // Simular download
-        function simulateDownload(fileName, type) {
-            // Criar um link de download simulado
-            const link = document.createElement('a');
-            
-            // Determinar a extensão do arquivo baseada no tipo
-            const extension = type === 'executor' ? '.apk' : '.txt';
-            const fullFileName = fileName.endsWith(extension) ? fileName : fileName + extension;
-            
-            // Criar um blob vazio para simular o arquivo
-            const blob = new Blob(['Conteúdo simulado do arquivo ' + fullFileName], { type: 'application/octet-stream' });
-            const url = URL.createObjectURL(blob);
-            
-            link.href = url;
-            link.download = fullFileName;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-            
-            // Mostrar mensagem de download
-            uploadMessage.textContent = `Download iniciado: ${fullFileName}`;
-            uploadMessage.classList.remove('alert-error');
-            uploadMessage.classList.add('alert-success');
-            uploadMessage.classList.remove('hidden');
-            
-            setTimeout(() => {
-                uploadMessage.classList.add('hidden');
-            }, 3000);
+        // Fazer download do arquivo real
+        function downloadItem(itemId) {
+            const item = publishedItems.find(item => item.id === itemId);
+            if (item && item.fileData) {
+                // Converter base64 para blob
+                const byteCharacters = atob(item.fileData.split(',')[1]);
+                const byteNumbers = new Array(byteCharacters.length);
+                for (let i = 0; i < byteCharacters.length; i++) {
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
+                }
+                const byteArray = new Uint8Array(byteNumbers);
+                const blob = new Blob([byteArray], { type: 'application/octet-stream' });
+                
+                // Criar link de download
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                
+                link.href = url;
+                link.download = item.fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                
+                // Mostrar mensagem de download
+                uploadMessage.textContent = `Download iniciado: ${item.fileName}`;
+                uploadMessage.classList.remove('alert-error');
+                uploadMessage.classList.add('alert-success');
+                uploadMessage.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    uploadMessage.classList.add('hidden');
+                }, 3000);
+            } else {
+                uploadMessage.textContent = 'Erro: Arquivo não encontrado';
+                uploadMessage.classList.remove('alert-success');
+                uploadMessage.classList.add('alert-error');
+                uploadMessage.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    uploadMessage.classList.add('hidden');
+                }, 3000);
+            }
         }
         
         // Mostrar formulário de edição
@@ -756,6 +784,8 @@
                 document.getElementById('edit-description').value = item.description;
                 document.getElementById('edit-type').value = item.type;
                 editFileUploadArea.innerHTML = `<p>Arquivo atual: ${item.fileName}</p>`;
+                editFileInfo.classList.remove('hidden');
+                editFileInfo.textContent = `Arquivo atual: ${item.fileName}`;
                 
                 // Mostrar formulário de edição e ocultar o de publicação
                 uploadFormContainer.classList.add('hidden');
@@ -771,6 +801,7 @@
             editFormContainer.classList.add('hidden');
             uploadFormContainer.classList.remove('hidden');
             editForm.reset();
+            editFileInfo.classList.add('hidden');
         }
         
         // Excluir item
@@ -828,7 +859,10 @@
         
         fileInput.addEventListener('change', function() {
             if (fileInput.files.length > 0) {
-                fileUploadArea.innerHTML = `<p>Arquivo selecionado: ${fileInput.files[0].name}</p>`;
+                const file = fileInput.files[0];
+                fileUploadArea.innerHTML = `<p>Arquivo selecionado: ${file.name}</p>`;
+                fileInfo.classList.remove('hidden');
+                fileInfo.textContent = `Tamanho: ${(file.size / 1024 / 1024).toFixed(2)} MB | Tipo: ${file.type || 'Desconhecido'}`;
             }
         });
         
@@ -838,7 +872,10 @@
         
         editFileInput.addEventListener('change', function() {
             if (editFileInput.files.length > 0) {
-                editFileUploadArea.innerHTML = `<p>Novo arquivo: ${editFileInput.files[0].name}</p>`;
+                const file = editFileInput.files[0];
+                editFileUploadArea.innerHTML = `<p>Novo arquivo: ${file.name}</p>`;
+                editFileInfo.classList.remove('hidden');
+                editFileInfo.textContent = `Novo arquivo: ${file.name} | Tamanho: ${(file.size / 1024 / 1024).toFixed(2)} MB`;
             }
         });
         
@@ -850,7 +887,6 @@
             const title = document.getElementById('title').value;
             const description = document.getElementById('description').value;
             const type = document.getElementById('type').value;
-            const fileName = fileInput.files.length > 0 ? fileInput.files[0].name : 'arquivo';
             
             if (!title || !description || type === "" || fileInput.files.length === 0) {
                 uploadMessage.textContent = 'Por favor, preencha todos os campos!';
@@ -860,23 +896,31 @@
                 return;
             }
             
-            // Adicionar item publicado
-            addPublishedItem(title, description, type, fileName);
+            const file = fileInput.files[0];
+            const reader = new FileReader();
             
-            // Mensagem de sucesso
-            uploadMessage.textContent = 'Conteúdo publicado com sucesso!';
-            uploadMessage.classList.remove('alert-error');
-            uploadMessage.classList.add('alert-success');
-            uploadMessage.classList.remove('hidden');
+            reader.onload = function(e) {
+                // Adicionar item publicado com o arquivo real
+                addPublishedItem(title, description, type, file.name, e.target.result);
+                
+                // Mensagem de sucesso
+                uploadMessage.textContent = 'Conteúdo publicado com sucesso!';
+                uploadMessage.classList.remove('alert-error');
+                uploadMessage.classList.add('alert-success');
+                uploadMessage.classList.remove('hidden');
+                
+                // Limpar formulário
+                uploadForm.reset();
+                fileUploadArea.innerHTML = `<p>Clique para selecionar ou arraste o arquivo aqui</p>`;
+                fileInfo.classList.add('hidden');
+                
+                // Ocultar mensagem após 3 segundos
+                setTimeout(() => {
+                    uploadMessage.classList.add('hidden');
+                }, 3000);
+            };
             
-            // Limpar formulário
-            uploadForm.reset();
-            fileUploadArea.innerHTML = `<p>Clique para selecionar ou arraste o arquivo aqui</p>`;
-            
-            // Ocultar mensagem após 3 segundos
-            setTimeout(() => {
-                uploadMessage.classList.add('hidden');
-            }, 3000);
+            reader.readAsDataURL(file);
         });
         
         // Processar envio do formulário de edição
@@ -888,9 +932,6 @@
             const title = document.getElementById('edit-title').value;
             const description = document.getElementById('edit-description').value;
             const type = document.getElementById('edit-type').value;
-            const fileName = editFileInput.files.length > 0 ? 
-                editFileInput.files[0].name : 
-                publishedItems.find(item => item.id === id).fileName;
             
             if (!title || !description || type === "") {
                 uploadMessage.textContent = 'Por favor, preencha todos os campos!';
@@ -900,21 +941,41 @@
                 return;
             }
             
-            // Atualizar item
-            if (updatePublishedItem(id, title, description, type, fileName)) {
-                // Mensagem de sucesso
-                uploadMessage.textContent = 'Conteúdo atualizado com sucesso!';
-                uploadMessage.classList.remove('alert-error');
-                uploadMessage.classList.add('alert-success');
-                uploadMessage.classList.remove('hidden');
+            if (editFileInput.files.length > 0) {
+                // Se há um novo arquivo, processá-lo
+                const file = editFileInput.files[0];
+                const reader = new FileReader();
                 
-                // Voltar para o formulário de publicação
-                cancelEdit();
+                reader.onload = function(e) {
+                    // Atualizar item com novo arquivo
+                    if (updatePublishedItem(id, title, description, type, file.name, e.target.result)) {
+                        uploadMessage.textContent = 'Conteúdo atualizado com sucesso!';
+                        uploadMessage.classList.remove('alert-error');
+                        uploadMessage.classList.add('alert-success');
+                        uploadMessage.classList.remove('hidden');
+                        cancelEdit();
+                        
+                        setTimeout(() => {
+                            uploadMessage.classList.add('hidden');
+                        }, 3000);
+                    }
+                };
                 
-                // Ocultar mensagem após 3 segundos
-                setTimeout(() => {
-                    uploadMessage.classList.add('hidden');
-                }, 3000);
+                reader.readAsDataURL(file);
+            } else {
+                // Se não há novo arquivo, manter o atual
+                const currentItem = publishedItems.find(item => item.id === id);
+                if (updatePublishedItem(id, title, description, type, currentItem.fileName, currentItem.fileData)) {
+                    uploadMessage.textContent = 'Conteúdo atualizado com sucesso!';
+                    uploadMessage.classList.remove('alert-error');
+                    uploadMessage.classList.add('alert-success');
+                    uploadMessage.classList.remove('hidden');
+                    cancelEdit();
+                    
+                    setTimeout(() => {
+                        uploadMessage.classList.add('hidden');
+                    }, 3000);
+                }
             }
         });
         
@@ -922,6 +983,7 @@
         addItemBtn.addEventListener('click', function() {
             uploadForm.reset();
             fileUploadArea.innerHTML = `<p>Clique para selecionar ou arraste o arquivo aqui</p>`;
+            fileInfo.classList.add('hidden');
             uploadMessage.classList.add('hidden');
             
             // Garantir que o formulário de publicação esteja visível
