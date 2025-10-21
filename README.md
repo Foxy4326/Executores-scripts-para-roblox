@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Executores e Scripts - Área Restrita</title>
+    <title>Executores e Scripts - Sistema Completo</title>
     <style>
         * {
             margin: 0;
@@ -114,6 +114,7 @@
             overflow: hidden;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
         }
         
         .card:hover {
@@ -139,6 +140,18 @@
         .card p {
             color: #666;
             margin-bottom: 1rem;
+        }
+        
+        .card .date {
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 1rem;
+        }
+        
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
         }
         
         .btn {
@@ -171,6 +184,15 @@
         
         .btn-danger {
             background: linear-gradient(135deg, #c31432 0%, #c7364d 100%);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #ff8c00 0%, #ffa500 100%);
+        }
+        
+        .btn-small {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
         }
         
         footer {
@@ -306,6 +328,28 @@
             border: 1px solid #f5c6cb;
         }
         
+        .empty-message {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .edit-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .form-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
         @media (max-width: 768px) {
             .header-content {
                 flex-direction: column;
@@ -328,6 +372,10 @@
             .admin-controls {
                 flex-direction: column;
                 gap: 1rem;
+            }
+            
+            .card-actions {
+                flex-direction: column;
             }
         }
     </style>
@@ -360,71 +408,15 @@
     <div class="container">
         <section id="executores">
             <h2 class="section-title">Executores (APK)</h2>
-            <div class="content-grid">
-                <div class="card">
-                    <div class="card-header">
-                        <h3>Executor Pro</h3>
-                    </div>
-                    <div class="card-body">
-                        <p>Executor avançado com interface moderna e recursos exclusivos.</p>
-                        <a href="#" class="btn">Baixar APK</a>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-header">
-                        <h3>ScriptMaster</h3>
-                    </div>
-                    <div class="card-body">
-                        <p>Executor versátil com suporte a múltiplos formatos de script.</p>
-                        <a href="#" class="btn">Baixar APK</a>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-header">
-                        <h3>AutoRunner</h3>
-                    </div>
-                    <div class="card-body">
-                        <p>Executor otimizado para automação de tarefas repetitivas.</p>
-                        <a href="#" class="btn">Baixar APK</a>
-                    </div>
-                </div>
+            <div class="content-grid" id="executors-grid">
+                <!-- Conteúdo será carregado dinamicamente -->
             </div>
         </section>
 
         <section id="scripts">
             <h2 class="section-title">Scripts</h2>
-            <div class="content-grid">
-                <div class="card">
-                    <div class="card-header">
-                        <h3>Automação de Tarefas</h3>
-                    </div>
-                    <div class="card-body">
-                        <p>Script para automatizar tarefas repetitivas no dispositivo.</p>
-                        <a href="#" class="btn">Baixar Script</a>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-header">
-                        <h3>Otimização de Sistema</h3>
-                    </div>
-                    <div class="card-body">
-                        <p>Script para melhorar o desempenho do sistema Android.</p>
-                        <a href="#" class="btn">Baixar Script</a>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-header">
-                        <h3>Personalização UI</h3>
-                    </div>
-                    <div class="card-body">
-                        <p>Script para personalizar a interface do usuário.</p>
-                        <a href="#" class="btn">Baixar Script</a>
-                    </div>
-                </div>
+            <div class="content-grid" id="scripts-grid">
+                <!-- Conteúdo será carregado dinamicamente -->
             </div>
         </section>
 
@@ -458,7 +450,47 @@
                 Conteúdo publicado com sucesso!
             </div>
             
-            <div class="upload-section">
+            <!-- Formulário de Edição (inicialmente oculto) -->
+            <div id="edit-form-container" class="edit-form hidden">
+                <div class="form-header">
+                    <h3>Editar Conteúdo</h3>
+                    <button id="cancel-edit-btn" class="btn btn-danger btn-small">Cancelar</button>
+                </div>
+                <form class="upload-form" id="edit-form">
+                    <input type="hidden" id="edit-id">
+                    <div class="form-group">
+                        <label for="edit-title">Título</label>
+                        <input type="text" id="edit-title" placeholder="Digite o título do conteúdo" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit-description">Descrição</label>
+                        <textarea id="edit-description" placeholder="Descreva o conteúdo" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit-type">Tipo de Conteúdo</label>
+                        <select id="edit-type" required>
+                            <option value="">Selecione o tipo</option>
+                            <option value="executor">Executor (APK)</option>
+                            <option value="script">Script</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Arquivo</label>
+                        <div class="file-upload" id="edit-file-upload-area">
+                            <p>Clique para selecionar ou arraste o arquivo aqui</p>
+                            <input type="file" id="edit-file" style="display: none;">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-warning">Salvar Alterações</button>
+                </form>
+            </div>
+            
+            <!-- Formulário de Publicação -->
+            <div class="upload-section" id="upload-form-container">
                 <form class="upload-form" id="upload-form">
                     <div class="form-group">
                         <label for="title">Título</label>
@@ -520,6 +552,7 @@
         const uploadSection = document.getElementById('upload');
         const authForm = document.getElementById('auth-form');
         const uploadForm = document.getElementById('upload-form');
+        const editForm = document.getElementById('edit-form');
         const accessCodeInput = document.getElementById('access-code');
         const authMessage = document.getElementById('auth-message');
         const uploadMessage = document.getElementById('upload-message');
@@ -527,6 +560,17 @@
         const logoutAdminBtn = document.getElementById('logout-admin');
         const fileUploadArea = document.getElementById('file-upload-area');
         const fileInput = document.getElementById('file');
+        const editFileUploadArea = document.getElementById('edit-file-upload-area');
+        const editFileInput = document.getElementById('edit-file');
+        const executorsGrid = document.getElementById('executors-grid');
+        const scriptsGrid = document.getElementById('scripts-grid');
+        const uploadFormContainer = document.getElementById('upload-form-container');
+        const editFormContainer = document.getElementById('edit-form-container');
+        const cancelEditBtn = document.getElementById('cancel-edit-btn');
+        const addItemBtn = document.getElementById('add-item-btn');
+        
+        // Array para armazenar os itens publicados
+        let publishedItems = JSON.parse(localStorage.getItem('publishedItems')) || [];
         
         // Verificar se o usuário já está autenticado
         function checkAuthStatus() {
@@ -549,6 +593,160 @@
             uploadSection.classList.add('hidden');
             logoutBtn.classList.add('hidden');
             localStorage.removeItem('authenticated');
+        }
+        
+        // Adicionar item publicado na lista
+        function addPublishedItem(title, description, type, fileName) {
+            const newItem = {
+                id: Date.now(),
+                title,
+                description,
+                type,
+                fileName,
+                date: new Date().toLocaleDateString('pt-BR'),
+                lastUpdate: new Date().toLocaleDateString('pt-BR')
+            };
+            
+            publishedItems.push(newItem);
+            localStorage.setItem('publishedItems', JSON.stringify(publishedItems));
+            
+            // Atualizar a exibição
+            displayPublishedItems();
+        }
+        
+        // Atualizar item existente
+        function updatePublishedItem(id, title, description, type, fileName) {
+            const itemIndex = publishedItems.findIndex(item => item.id === id);
+            if (itemIndex !== -1) {
+                publishedItems[itemIndex].title = title;
+                publishedItems[itemIndex].description = description;
+                publishedItems[itemIndex].type = type;
+                publishedItems[itemIndex].fileName = fileName;
+                publishedItems[itemIndex].lastUpdate = new Date().toLocaleDateString('pt-BR');
+                
+                localStorage.setItem('publishedItems', JSON.stringify(publishedItems));
+                displayPublishedItems();
+                return true;
+            }
+            return false;
+        }
+        
+        // Exibir itens publicados
+        function displayPublishedItems() {
+            // Limpar grids
+            executorsGrid.innerHTML = '';
+            scriptsGrid.innerHTML = '';
+            
+            // Filtrar e exibir executores
+            const executors = publishedItems.filter(item => item.type === 'executor');
+            if (executors.length > 0) {
+                executors.forEach(item => {
+                    const card = createItemCard(item);
+                    executorsGrid.appendChild(card);
+                });
+            } else {
+                executorsGrid.innerHTML = '<div class="empty-message">Nenhum executor publicado ainda.</div>';
+            }
+            
+            // Filtrar e exibir scripts
+            const scripts = publishedItems.filter(item => item.type === 'script');
+            if (scripts.length > 0) {
+                scripts.forEach(item => {
+                    const card = createItemCard(item);
+                    scriptsGrid.appendChild(card);
+                });
+            } else {
+                scriptsGrid.innerHTML = '<div class="empty-message">Nenhum script publicado ainda.</div>';
+            }
+        }
+        
+        // Criar card para item
+        function createItemCard(item) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            
+            // Verificar se é uma edição recente
+            const isUpdated = item.lastUpdate !== item.date;
+            const dateText = isUpdated ? 
+                `Atualizado em: ${item.lastUpdate}` : 
+                `Publicado em: ${item.date}`;
+            
+            card.innerHTML = `
+                <div class="card-header">
+                    <h3>${item.title}</h3>
+                </div>
+                <div class="card-body">
+                    <p>${item.description}</p>
+                    <p class="date">${dateText}</p>
+                    <a href="#" class="btn" data-file="${item.fileName}">
+                        ${item.type === 'executor' ? 'Baixar APK' : 'Baixar Script'}
+                    </a>
+                    <div class="card-actions">
+                        <button class="btn btn-warning btn-small edit-btn" data-id="${item.id}">Editar</button>
+                        <button class="btn btn-danger btn-small delete-btn" data-id="${item.id}">Excluir</button>
+                    </div>
+                </div>
+            `;
+            
+            // Adicionar eventos aos botões
+            const editBtn = card.querySelector('.edit-btn');
+            const deleteBtn = card.querySelector('.delete-btn');
+            
+            editBtn.addEventListener('click', function() {
+                showEditForm(item.id);
+            });
+            
+            deleteBtn.addEventListener('click', function() {
+                deleteItem(item.id);
+            });
+            
+            return card;
+        }
+        
+        // Mostrar formulário de edição
+        function showEditForm(itemId) {
+            const item = publishedItems.find(item => item.id === itemId);
+            if (item) {
+                // Preencher formulário de edição
+                document.getElementById('edit-id').value = item.id;
+                document.getElementById('edit-title').value = item.title;
+                document.getElementById('edit-description').value = item.description;
+                document.getElementById('edit-type').value = item.type;
+                editFileUploadArea.innerHTML = `<p>Arquivo atual: ${item.fileName}</p>`;
+                
+                // Mostrar formulário de edição e ocultar o de publicação
+                uploadFormContainer.classList.add('hidden');
+                editFormContainer.classList.remove('hidden');
+                
+                // Rolar para o formulário de edição
+                editFormContainer.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+        
+        // Cancelar edição
+        function cancelEdit() {
+            editFormContainer.classList.add('hidden');
+            uploadFormContainer.classList.remove('hidden');
+            editForm.reset();
+        }
+        
+        // Excluir item
+        function deleteItem(itemId) {
+            if (confirm('Tem certeza que deseja excluir este item?')) {
+                publishedItems = publishedItems.filter(item => item.id !== itemId);
+                localStorage.setItem('publishedItems', JSON.stringify(publishedItems));
+                displayPublishedItems();
+                
+                // Mostrar mensagem de sucesso
+                uploadMessage.textContent = 'Item excluído com sucesso!';
+                uploadMessage.classList.remove('alert-error');
+                uploadMessage.classList.add('alert-success');
+                uploadMessage.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    uploadMessage.classList.add('hidden');
+                }, 3000);
+            }
         }
         
         // Processar autenticação
@@ -591,7 +789,17 @@
             }
         });
         
-        // Simulação de envio do formulário de upload
+        editFileUploadArea.addEventListener('click', function() {
+            editFileInput.click();
+        });
+        
+        editFileInput.addEventListener('change', function() {
+            if (editFileInput.files.length > 0) {
+                editFileUploadArea.innerHTML = `<p>Novo arquivo: ${editFileInput.files[0].name}</p>`;
+            }
+        });
+        
+        // Processar envio do formulário de upload
         uploadForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -599,6 +807,7 @@
             const title = document.getElementById('title').value;
             const description = document.getElementById('description').value;
             const type = document.getElementById('type').value;
+            const fileName = fileInput.files.length > 0 ? fileInput.files[0].name : 'arquivo';
             
             if (!title || !description || type === "" || fileInput.files.length === 0) {
                 uploadMessage.textContent = 'Por favor, preencha todos os campos!';
@@ -608,7 +817,10 @@
                 return;
             }
             
-            // Simular sucesso no upload
+            // Adicionar item publicado
+            addPublishedItem(title, description, type, fileName);
+            
+            // Mensagem de sucesso
             uploadMessage.textContent = 'Conteúdo publicado com sucesso!';
             uploadMessage.classList.remove('alert-error');
             uploadMessage.classList.add('alert-success');
@@ -624,16 +836,65 @@
             }, 3000);
         });
         
+        // Processar envio do formulário de edição
+        editForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Validar formulário
+            const id = parseInt(document.getElementById('edit-id').value);
+            const title = document.getElementById('edit-title').value;
+            const description = document.getElementById('edit-description').value;
+            const type = document.getElementById('edit-type').value;
+            const fileName = editFileInput.files.length > 0 ? 
+                editFileInput.files[0].name : 
+                publishedItems.find(item => item.id === id).fileName;
+            
+            if (!title || !description || type === "") {
+                uploadMessage.textContent = 'Por favor, preencha todos os campos!';
+                uploadMessage.classList.remove('alert-success');
+                uploadMessage.classList.add('alert-error');
+                uploadMessage.classList.remove('hidden');
+                return;
+            }
+            
+            // Atualizar item
+            if (updatePublishedItem(id, title, description, type, fileName)) {
+                // Mensagem de sucesso
+                uploadMessage.textContent = 'Conteúdo atualizado com sucesso!';
+                uploadMessage.classList.remove('alert-error');
+                uploadMessage.classList.add('alert-success');
+                uploadMessage.classList.remove('hidden');
+                
+                // Voltar para o formulário de publicação
+                cancelEdit();
+                
+                // Ocultar mensagem após 3 segundos
+                setTimeout(() => {
+                    uploadMessage.classList.add('hidden');
+                }, 3000);
+            }
+        });
+        
         // Adicionar novo item
-        document.getElementById('add-item-btn').addEventListener('click', function() {
+        addItemBtn.addEventListener('click', function() {
             uploadForm.reset();
             fileUploadArea.innerHTML = `<p>Clique para selecionar ou arraste o arquivo aqui</p>`;
             uploadMessage.classList.add('hidden');
+            
+            // Garantir que o formulário de publicação esteja visível
+            uploadFormContainer.classList.remove('hidden');
+            editFormContainer.classList.add('hidden');
+        });
+        
+        // Cancelar edição
+        cancelEditBtn.addEventListener('click', function() {
+            cancelEdit();
         });
         
         // Verificar status de autenticação ao carregar a página
         document.addEventListener('DOMContentLoaded', function() {
             checkAuthStatus();
+            displayPublishedItems();
         });
     </script>
 </body>
