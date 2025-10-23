@@ -1,3 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Executores e Scripts - Sistema Completo</title>
+<style>
+/* --- CSS Completo --- */
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;}
+body{background:#f5f5f5;color:#333;line-height:1.6;}
+header{background:linear-gradient(135deg,#1a2a6c 0%,#2a3c7a 100%);color:#fff;padding:1rem 0;box-shadow:0 2px 10px rgba(0,0,0,.1);}
+.container{width:90%;max-width:1200px;margin:0 auto;padding:0 15px;}
+.header-content{display:flex;justify-content:space-between;align-items:center;}
+.logo{font-size:1.8rem;font-weight:bold;}
+nav ul{display:flex;list-style:none;}
+nav ul li{margin-left:20px;}
+nav ul li a{color:white;text-decoration:none;font-weight:500;transition:opacity .3s;}
+nav ul li a:hover{opacity:.8;}
+.hero{background:#fff;padding:3rem 0;text-align:center;margin-bottom:2rem;border-radius:0 0 10px 10px;box-shadow:0 2px 10px rgba(0,0,0,.05);}
+.hero h1{font-size:2.5rem;margin-bottom:1rem;color:#333;}
+.hero p{font-size:1.1rem;max-width:700px;margin:0 auto;color:#666;}
+.section-title{text-align:center;margin:2rem 0;color:#333;position:relative;}
+.section-title:after{content:'';display:block;width:80px;height:3px;background:linear-gradient(135deg,#1a2a6c 0%,#2a3c7a 100%);margin:10px auto;}
+.content-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:2rem;margin-bottom:3rem;}
+.card{background:white;border-radius:10px;overflow:hidden;box-shadow:0 5px 15px rgba(0,0,0,.1);transition:transform .3s,box-shadow .3s;position:relative;}
+.card:hover{transform:translateY(-5px);box-shadow:0 10px 20px rgba(0,0,0,.15);}
+.card-header{padding:1.5rem;background:linear-gradient(135deg,#1a2a6c 0%,#2a3c7a 100%);color:white;}
+.card-body{padding:1.5rem;}
+.card h3{margin-bottom:.5rem;font-size:1.3rem;}
+.card p{color:#666;margin-bottom:1rem;}
+.card .date{font-size:.8rem;color:#888;margin-bottom:1rem;}
+.card-actions{display:flex;gap:.5rem;margin-top:1rem;}
+.btn{display:inline-block;background:linear-gradient(135deg,#1a2a6c 0%,#2a3c7a 100%);color:white;padding:.7rem 1.5rem;border-radius:5px;text-decoration:none;font-weight:500;transition:opacity .3s;border:none;cursor:pointer;text-align:center;}
+.btn:hover{opacity:.9;}
+.btn-outline{background:transparent;border:2px solid #1a2a6c;color:#1a2a6c;}
+.btn-outline:hover{background:#1a2a6c;color:white;}
+.btn-danger{background:linear-gradient(135deg,#c31432 0%,#c7364d 100%);}
+.btn-warning{background:linear-gradient(135deg,#ff8c00 0%,#ffa500 100%);}
+.btn-small{padding:.4rem .8rem;font-size:.8rem;}
+footer{background:#333;color:white;padding:2rem 0;text-align:center;margin-top:3rem;}
+.footer-content{display:flex;flex-direction:column;align-items:center;}
+.footer-links{display:flex;margin:1rem 0;}
+.footer-links a{color:white;margin:0 10px;text-decoration:none;}
+.footer-links a:hover{text-decoration:underline;}
+.copyright{margin-top:1rem;font-size:.9rem;color:#ccc;}
+.upload-section{background:white;padding:2rem;border-radius:10px;box-shadow:0 5px 15px rgba(0,0,0,.1);margin-bottom:3rem;}
+.upload-form{display:flex;flex-direction:column;gap:1rem;}
+.form-group{display:flex;flex-direction:column;}
+.form-group label{margin-bottom:.5rem;font-weight:500;}
+.form-group input,.form-group select,.form-group textarea{padding:.7rem;border:1px solid #ddd;border-radius:5px;font-size:1rem;}
+.form-group textarea{min-height:100px;resize:vertical;}
+.file-upload{border:2px dashed #ddd;padding:1.5rem;text-align:center;border-radius:5px;cursor:pointer;transition:border-color .3s;}
+.file-upload:hover{border-color:#1a2a6c;}
+.file-upload p{color:#666;}
+.auth-section{background:white;padding:2rem;border-radius:10px;box-shadow:0 5px 15px rgba(0,0,0,.1);margin-bottom:3rem;max-width:500px;margin-left:auto;margin-right:auto;}
+.auth-form{display:flex;flex-direction:column;gap:1rem;}
+.hidden{display:none;}
+.admin-controls{display:flex;justify-content:space-between;margin-bottom:1rem;}
+.alert{padding:1rem;border-radius:5px;margin-bottom:1rem;}
+.alert-success{background-color:#d4edda;color:#155724;border:1px solid #c3e6cb;}
+.alert-error{background-color:#f8d7da;color:#721c24;border:1px solid #f5c6cb;}
+.empty-message{text-align:center;padding:2rem;color:#666;font-style:italic;}
+.edit-form{background:white;padding:2rem;border-radius:10px;box-shadow:0 5px 15px rgba(0,0,0,.1);margin-bottom:2rem;}
+.form-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;}
+.download-btn{display:block;width:100%;margin-bottom:1rem;}
+.file-info{background:#f8f9fa;padding:.5rem;border-radius:5px;margin-top:.5rem;font-size:.9rem;}
+.url-input{margin-top:.5rem;}
+@media(max-width:768px){.header-content{flex-direction:column;text-align:center;}nav ul{margin-top:1rem;justify-content:center;}nav ul li{margin:0 10px;}.content-grid{grid-template-columns:1fr;}.admin-controls{flex-direction:column;gap:1rem;}.card-actions{flex-direction:column;}}
+</style>
+</head>
+<body>
+
+<header>
+<div class="container">
+<div class="header-content">
+<div class="logo">Executores & Scripts</div>
+<nav>
+<ul>
+<li><a href="#home">Início</a></li>
+<li><a href="#executores">Executores</a></li>
+<li><a href="#scripts">Scripts</a></li>
+<li><a href="#upload">Publicar</a></li>
+<li><a href="#" id="logout-btn" class="hidden">Sair</a></li>
+</ul>
+</nav>
+</div>
+</div>
+</header>
+
+<section class="hero" id="home">
+<div class="container">
+<h1>Encontre os Melhores Executores e Scripts</h1>
+<p>Baixe executores em formato APK e scripts para diversas finalidades. Área de publicação restrita.</p>
+</div>
+</section>
+
+<div class="container">
+<section id="executores">
+<h2 class="section-title">Executores (APK)</h2>
+<div class="content-grid" id="executors-grid"></div>
+</section>
+
+<section id="scripts">
+<h2 class="section-title">Scripts</h2>
+<div class="content-grid" id="scripts-grid"></div>
+</section>
+
+<!-- Área de Autenticação -->
+<section id="auth">
+<h2 class="section-title">Acesso Restrito</h2>
+<div class="auth-section">
+<div id="auth-message" class="alert alert-error hidden"></div>
+<form class="auth-form" id="auth-form">
+<div class="form-group">
+<label for="access-code">Código de Acesso</label>
+<input type="password" id="access-code" placeholder="Digite o código secreto" required>
+</div>
+<button type="submit" class="btn">Acessar Área de Publicação</button>
+</form>
+</div>
+</section>
+
+<!-- Área de Upload -->
+<section id="upload" class="hidden">
+<h2 class="section-title">Publicar Conteúdo</h2>
+<div class="admin-controls">
+<button id="add-item-btn" class="btn">Adicionar Novo Item</button>
+<button id="logout-admin" class="btn btn-danger">Sair da Área Admin</button>
+</div>
+
+<div id="upload-message" class="alert alert-success hidden"></div>
+
+<!-- Formulário de Edição -->
+<div id="edit-form-container" class="edit-form hidden">
+<div class="form-header">
+<h3>Editar Conteúdo</h3>
+<button id="cancel-edit-btn" class="btn btn-danger btn-small">Cancelar</button>
+</div>
+<form class="upload-form" id="edit-form">
+<input type="hidden" id="edit-id">
+<div class="form-group">
+<label for="edit-title">Título</label>
+<input type="text" id="edit-title" placeholder="Digite o título do conteúdo" required>
+</div>
+<div class="form-group">
+<label for="edit-description">Descrição</label>
+<textarea id="edit-description" placeholder="Descreva o conteúdo" required></textarea>
+</div>
+<div class="form-group">
+<label for="edit-type">Tipo de Conteúdo</label>
+<select id="edit-type" required>
+<option value="">Selecione o tipo</option>
+<option value="executor">Executor (APK)</option>
+<option value="script">Script</option>
+</select>
+</div>
+<div class="form-group">
+<label>URL do Download</label>
+<input type="url" id="edit-download-url" class="url-input" placeholder="https://exemplo.com/arquivo.apk" required>
+</div>
+<button type="submit" class="btn btn-warning">Salvar Alterações</button>
+</form>
+</div>
+
+<!-- Formulário de Publicação -->
+<div class="upload-section" id="upload-form-container">
+<form class="upload-form" id="upload-form">
+<div class="form-group">
+<label for="title">Título</label>
+<input type="text" id="title" placeholder="Digite o título do conteúdo" required>
+</div>
+<div class="form-group">
+<label for="description">Descrição</label>
+<textarea id="description" placeholder="Descreva o conteúdo" required></textarea>
+</div>
+<div class="form-group">
+<label for="type">Tipo de Conteúdo</label>
+<select id="type" required>
+<option value="">Selecione o tipo</option>
+<option value="executor">Executor (APK)</option>
+<option value="script">Script</option>
+</select>
+</div>
+<div class="form-group">
+<label>URL do Download</label>
+<input type="url" id="download-url" class="url-input" placeholder="https://exemplo.com/arquivo.apk" required>
+<div class="file-info">
+<small>Use serviços como Google Drive, MediaFire, ou Mega.nz para hospedar seus arquivos</small>
+</div>
+</div>
+<button type="submit" class="btn">Publicar Conteúdo</button>
+</form>
+</div>
+</section>
+</div>
+
+<footer>
+<div class="container">
+<div class="footer-content">
+<div class="logo">Executores & Scripts</div>
+<div class="footer-links">
+<a href="#home">Início</a>
+<a href="#executores">Executores</a>
+<a href="#scripts">Scripts</a>
+<a href="#upload">Publicar</a>
+<a href="#">Contato</a>
+</div>
+<div class="copyright">
+&copy; 2025 Executores & Scripts. Área administrativa protegida.
+</div>
+</div>
+</div>
+</footer>
+
+<!-- ================= JAVASCRIPT ================= -->
 <script>
 // ================= CONFIGURAÇÃO =================
 const SECRET_CODE = "admin123"; // Código secreto
@@ -24,9 +239,7 @@ const addItemBtn = document.getElementById('add-item-btn');
 let publishedItems = JSON.parse(localStorage.getItem('publishedItems')) || [];
 
 // ================= FUNÇÕES =================
-function saveItems() {
-  localStorage.setItem('publishedItems', JSON.stringify(publishedItems));
-}
+function saveItems() { localStorage.setItem('publishedItems', JSON.stringify(publishedItems)); }
 
 function checkAuthStatus() {
   const isAuthenticated = localStorage.getItem('authenticated') === 'true';
@@ -169,3 +382,6 @@ document.addEventListener('DOMContentLoaded', () => {
   displayPublishedItems();
 });
 </script>
+
+</body>
+</html>
