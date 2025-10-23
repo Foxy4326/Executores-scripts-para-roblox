@@ -65,11 +65,47 @@ footer{background:#333;color:white;padding:2rem 0;text-align:center;margin-top:3
 .download-btn{display:block;width:100%;margin-bottom:1rem;}
 .file-info{background:#f8f9fa;padding:.5rem;border-radius:5px;margin-top:.5rem;font-size:.9rem;}
 .url-input{margin-top:.5rem;}
-@media(max-width:768px){.header-content{flex-direction:column;text-align:center;}nav ul{margin-top:1rem;justify-content:center;}nav ul li{margin:0 10px;}.content-grid{grid-template-columns:1fr;}.admin-controls{flex-direction:column;gap:1rem;}.card-actions{flex-direction:column;}}
+
+/* --- ESTILOS DA PÁGINA 404 --- */
+.error-page {display:none;background:linear-gradient(135deg,#1a2a6c 0%,#2a3c7a 100%);color:white;min-height:100vh;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:2rem;position:fixed;top:0;left:0;width:100%;height:100%;z-index:1000;}
+.error-container{max-width:600px;padding:2rem;}
+.error-code{font-size:8rem;font-weight:bold;margin-bottom:1rem;text-shadow:3px 3px 0 rgba(0,0,0,.2);}
+.error-title{font-size:2rem;margin-bottom:1rem;}
+.error-message{font-size:1.2rem;margin-bottom:2rem;opacity:.9;}
+.home-btn{display:inline-block;background:white;color:#1a2a6c;padding:1rem 2rem;text-decoration:none;border-radius:5px;font-weight:bold;transition:transform .3s,box-shadow .3s;margin-top:1rem;border:none;cursor:pointer;font-size:1rem;}
+.home-btn:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(0,0,0,.3);}
+.error-logo{font-size:2rem;font-weight:bold;margin-bottom:2rem;}
+
+@media(max-width:768px){
+.header-content{flex-direction:column;text-align:center;}
+nav ul{margin-top:1rem;justify-content:center;}
+nav ul li{margin:0 10px;}
+.content-grid{grid-template-columns:1fr;}
+.admin-controls{flex-direction:column;gap:1rem;}
+.card-actions{flex-direction:column;}
+.error-code{font-size:5rem;}
+.error-title{font-size:1.5rem;}
+.error-message{font-size:1rem;}
+}
 </style>
 </head>
 <body>
 
+<!-- Página 404 (oculta inicialmente) -->
+<div id="error-page" class="error-page">
+    <div class="error-logo">Executores & Scripts</div>
+    <div class="error-container">
+        <div class="error-code">404</div>
+        <h1 class="error-title">Página Não Encontrada</h1>
+        <p class="error-message">
+            A página que você está procurando não existe ou foi movida.
+        </p>
+        <button id="home-redirect" class="home-btn">Voltar para a Página Inicial</button>
+    </div>
+</div>
+
+<!-- Conteúdo Principal do Site -->
+<div id="main-content">
 <header>
 <div class="container">
 <div class="header-content">
@@ -211,6 +247,7 @@ footer{background:#333;color:white;padding:2rem 0;text-align:center;margin-top:3
 </div>
 </div>
 </footer>
+</div>
 
 <!-- ================= JAVASCRIPT ================= -->
 <script>
@@ -234,154 +271,219 @@ const uploadFormContainer = document.getElementById('upload-form-container');
 const editFormContainer = document.getElementById('edit-form-container');
 const cancelEditBtn = document.getElementById('cancel-edit-btn');
 const addItemBtn = document.getElementById('add-item-btn');
+const errorPage = document.getElementById('error-page');
+const mainContent = document.getElementById('main-content');
+const homeRedirect = document.getElementById('home-redirect');
 
 // ================= ARMAZENAMENTO =================
 let publishedItems = JSON.parse(localStorage.getItem('publishedItems')) || [];
 
-// ================= FUNÇÕES =================
-function saveItems() { localStorage.setItem('publishedItems', JSON.stringify(publishedItems)); }
+// ================= FUNÇÕES PRINCIPAIS =================
+function saveItems() { 
+    localStorage.setItem('publishedItems', JSON.stringify(publishedItems)); 
+}
 
 function checkAuthStatus() {
-  const isAuthenticated = localStorage.getItem('authenticated') === 'true';
-  if (isAuthenticated) showUploadSection();
+    const isAuthenticated = localStorage.getItem('authenticated') === 'true';
+    if (isAuthenticated) showUploadSection();
 }
 
 function showUploadSection() {
-  authSection.classList.add('hidden');
-  uploadSection.classList.remove('hidden');
-  logoutBtn.classList.remove('hidden');
+    authSection.classList.add('hidden');
+    uploadSection.classList.remove('hidden');
+    logoutBtn.classList.remove('hidden');
 }
 
 function hideUploadSection() {
-  authSection.classList.remove('hidden');
-  uploadSection.classList.add('hidden');
-  logoutBtn.classList.add('hidden');
-  localStorage.removeItem('authenticated');
+    authSection.classList.remove('hidden');
+    uploadSection.classList.add('hidden');
+    logoutBtn.classList.add('hidden');
+    localStorage.removeItem('authenticated');
 }
 
 function displayPublishedItems() {
-  executorsGrid.innerHTML = '';
-  scriptsGrid.innerHTML = '';
+    executorsGrid.innerHTML = '';
+    scriptsGrid.innerHTML = '';
 
-  const executors = publishedItems.filter(i => i.type === 'executor');
-  const scripts = publishedItems.filter(i => i.type === 'script');
+    const executors = publishedItems.filter(i => i.type === 'executor');
+    const scripts = publishedItems.filter(i => i.type === 'script');
 
-  if (executors.length) executors.forEach(i => executorsGrid.appendChild(createCard(i)));
-  else executorsGrid.innerHTML = '<div class="empty-message">Nenhum executor publicado ainda.</div>';
+    if (executors.length) executors.forEach(i => executorsGrid.appendChild(createCard(i)));
+    else executorsGrid.innerHTML = '<div class="empty-message">Nenhum executor publicado ainda.</div>';
 
-  if (scripts.length) scripts.forEach(i => scriptsGrid.appendChild(createCard(i)));
-  else scriptsGrid.innerHTML = '<div class="empty-message">Nenhum script publicado ainda.</div>';
+    if (scripts.length) scripts.forEach(i => scriptsGrid.appendChild(createCard(i)));
+    else scriptsGrid.innerHTML = '<div class="empty-message">Nenhum script publicado ainda.</div>';
 }
 
 function createCard(item) {
-  const card = document.createElement('div');
-  card.className = 'card';
-  const dateText = item.lastUpdate ? `Atualizado em: ${item.lastUpdate}` : `Publicado em: ${item.date || new Date().toLocaleDateString('pt-BR')}`;
-  card.innerHTML = `
-    <div class="card-header"><h3>${item.title}</h3></div>
-    <div class="card-body">
-      <p>${item.description}</p>
-      <p class="date">${dateText}</p>
-      <a href="${item.downloadUrl}" target="_blank" class="btn download-btn">${item.type === 'executor' ? 'Baixar APK' : 'Baixar Script'}</a>
-      <div class="card-actions">
-        <button class="btn btn-warning btn-small edit-btn" data-id="${item.id}">Editar</button>
-      </div>
-    </div>
-  `;
-  card.querySelector('.edit-btn').addEventListener('click', () => showEditForm(item.id));
-  return card;
+    const card = document.createElement('div');
+    card.className = 'card';
+    const dateText = item.lastUpdate ? `Atualizado em: ${item.lastUpdate}` : `Publicado em: ${item.date || new Date().toLocaleDateString('pt-BR')}`;
+    card.innerHTML = `
+        <div class="card-header"><h3>${item.title}</h3></div>
+        <div class="card-body">
+        <p>${item.description}</p>
+        <p class="date">${dateText}</p>
+        <a href="${item.downloadUrl}" target="_blank" class="btn download-btn">${item.type === 'executor' ? 'Baixar APK' : 'Baixar Script'}</a>
+        <div class="card-actions">
+            <button class="btn btn-warning btn-small edit-btn" data-id="${item.id}">Editar</button>
+        </div>
+        </div>
+    `;
+    card.querySelector('.edit-btn').addEventListener('click', () => showEditForm(item.id));
+    return card;
 }
 
 function showEditForm(id) {
-  const item = publishedItems.find(i => i.id === id);
-  if (!item) return;
-  document.getElementById('edit-id').value = id;
-  document.getElementById('edit-title').value = item.title;
-  document.getElementById('edit-description').value = item.description;
-  document.getElementById('edit-type').value = item.type;
-  document.getElementById('edit-download-url').value = item.downloadUrl;
+    const item = publishedItems.find(i => i.id === id);
+    if (!item) return;
+    document.getElementById('edit-id').value = id;
+    document.getElementById('edit-title').value = item.title;
+    document.getElementById('edit-description').value = item.description;
+    document.getElementById('edit-type').value = item.type;
+    document.getElementById('edit-download-url').value = item.downloadUrl;
 
-  uploadFormContainer.classList.add('hidden');
-  editFormContainer.classList.remove('hidden');
-  editFormContainer.scrollIntoView({ behavior: 'smooth' });
+    uploadFormContainer.classList.add('hidden');
+    editFormContainer.classList.remove('hidden');
+    editFormContainer.scrollIntoView({ behavior: 'smooth' });
 }
 
 function cancelEdit() {
-  editFormContainer.classList.add('hidden');
-  uploadFormContainer.classList.remove('hidden');
-  editForm.reset();
+    editFormContainer.classList.add('hidden');
+    uploadFormContainer.classList.remove('hidden');
+    editForm.reset();
 }
 
 function showAlert(msg, error = false) {
-  uploadMessage.textContent = msg;
-  uploadMessage.className = error ? 'alert alert-error' : 'alert alert-success';
-  uploadMessage.classList.remove('hidden');
-  setTimeout(() => uploadMessage.classList.add('hidden'), 4000);
+    uploadMessage.textContent = msg;
+    uploadMessage.className = error ? 'alert alert-error' : 'alert alert-success';
+    uploadMessage.classList.remove('hidden');
+    setTimeout(() => uploadMessage.classList.add('hidden'), 4000);
+}
+
+// ================= TRATAMENTO DE ERRO 404 =================
+function checkPageNotFound() {
+    // Lista de paths válidos para o site
+    const validPaths = ['/', '/index.html', ''];
+    const currentPath = window.location.pathname;
+    
+    // Verifica se é uma página do próprio site (âncora)
+    const isAnchorLink = currentPath === '/' && window.location.hash;
+    
+    // Se não for um path válido e não for um link âncora, mostra erro 404
+    if (!validPaths.includes(currentPath) && !isAnchorLink) {
+        showErrorPage();
+        return true;
+    }
+    return false;
+}
+
+function showErrorPage() {
+    mainContent.style.display = 'none';
+    errorPage.style.display = 'flex';
+    // Atualiza o título da página
+    document.title = 'Página Não Encontrada - Executores e Scripts';
+}
+
+function hideErrorPage() {
+    errorPage.style.display = 'none';
+    mainContent.style.display = 'block';
+    // Restaura o título original
+    document.title = 'Executores e Scripts - Sistema Completo';
+    // Corrige a URL na barra de endereços
+    window.history.replaceState({}, document.title, window.location.origin + '/');
 }
 
 // ================= EVENTOS =================
 authForm.addEventListener('submit', e => {
-  e.preventDefault();
-  if (accessCodeInput.value.trim() === SECRET_CODE) {
-    localStorage.setItem('authenticated', 'true');
-    showUploadSection();
-    authMessage.classList.add('hidden');
-  } else {
-    authMessage.textContent = 'Código de acesso incorreto. Tente novamente.';
-    authMessage.classList.remove('hidden');
-    accessCodeInput.value = '';
-  }
+    e.preventDefault();
+    if (accessCodeInput.value.trim() === SECRET_CODE) {
+        localStorage.setItem('authenticated', 'true');
+        showUploadSection();
+        authMessage.classList.add('hidden');
+    } else {
+        authMessage.textContent = 'Código de acesso incorreto. Tente novamente.';
+        authMessage.classList.remove('hidden');
+        accessCodeInput.value = '';
+    }
 });
 
-logoutBtn.addEventListener('click', e => { e.preventDefault(); hideUploadSection(); });
+logoutBtn.addEventListener('click', e => { 
+    e.preventDefault(); 
+    hideUploadSection(); 
+});
+
 logoutAdminBtn.addEventListener('click', hideUploadSection);
 
 uploadForm.addEventListener('submit', e => {
-  e.preventDefault();
-  const title = document.getElementById('title').value.trim();
-  const description = document.getElementById('description').value.trim();
-  const type = document.getElementById('type').value;
-  const downloadUrl = document.getElementById('download-url').value.trim();
-  if (!title || !description || !type || !downloadUrl) { showAlert('Preencha todos os campos', true); return; }
+    e.preventDefault();
+    const title = document.getElementById('title').value.trim();
+    const description = document.getElementById('description').value.trim();
+    const type = document.getElementById('type').value;
+    const downloadUrl = document.getElementById('download-url').value.trim();
+    if (!title || !description || !type || !downloadUrl) { 
+        showAlert('Preencha todos os campos', true); 
+        return; 
+    }
 
-  const newItem = { id: Date.now(), title, description, type, downloadUrl, date: new Date().toLocaleDateString('pt-BR') };
-  publishedItems.push(newItem);
-  saveItems();
-  displayPublishedItems();
-  uploadForm.reset();
-  showAlert('Conteúdo publicado com sucesso!');
+    const newItem = { 
+        id: Date.now(), 
+        title, 
+        description, 
+        type, 
+        downloadUrl, 
+        date: new Date().toLocaleDateString('pt-BR') 
+    };
+    publishedItems.push(newItem);
+    saveItems();
+    displayPublishedItems();
+    uploadForm.reset();
+    showAlert('Conteúdo publicado com sucesso!');
 });
 
 editForm.addEventListener('submit', e => {
-  e.preventDefault();
-  const id = parseInt(document.getElementById('edit-id').value);
-  const item = publishedItems.find(i => i.id === id);
-  if (!item) return;
+    e.preventDefault();
+    const id = parseInt(document.getElementById('edit-id').value);
+    const item = publishedItems.find(i => i.id === id);
+    if (!item) return;
 
-  item.title = document.getElementById('edit-title').value.trim();
-  item.description = document.getElementById('edit-description').value.trim();
-  item.type = document.getElementById('edit-type').value;
-  item.downloadUrl = document.getElementById('edit-download-url').value.trim();
-  item.lastUpdate = new Date().toLocaleDateString('pt-BR');
+    item.title = document.getElementById('edit-title').value.trim();
+    item.description = document.getElementById('edit-description').value.trim();
+    item.type = document.getElementById('edit-type').value;
+    item.downloadUrl = document.getElementById('edit-download-url').value.trim();
+    item.lastUpdate = new Date().toLocaleDateString('pt-BR');
 
-  saveItems();
-  displayPublishedItems();
-  cancelEdit();
-  showAlert('Conteúdo atualizado com sucesso!');
+    saveItems();
+    displayPublishedItems();
+    cancelEdit();
+    showAlert('Conteúdo atualizado com sucesso!');
 });
 
 cancelEditBtn.addEventListener('click', cancelEdit);
+
 addItemBtn.addEventListener('click', () => {
-  cancelEdit();
-  uploadFormContainer.scrollIntoView({ behavior: 'smooth' });
+    cancelEdit();
+    uploadFormContainer.scrollIntoView({ behavior: 'smooth' });
+});
+
+// Evento para o botão de redirecionamento da página 404
+homeRedirect.addEventListener('click', (e) => {
+    e.preventDefault();
+    hideErrorPage();
 });
 
 // ================= INICIALIZAÇÃO =================
 document.addEventListener('DOMContentLoaded', () => {
-  checkAuthStatus();
-  displayPublishedItems();
-});
-</script>
-
-</body>
-</html>
+    // Verifica se deve mostrar página 404
+    const isNotFound = checkPageNotFound();
+    
+    // Só inicializa o app principal se não for uma página 404
+    if (!isNotFound) {
+        checkAuthStatus();
+        displayPublishedItems();
+        
+        // Suaviza o scroll para links âncora
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+      
