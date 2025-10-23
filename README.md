@@ -1,8 +1,6 @@
 <script>
 // ================= CONFIGURAÇÃO =================
 const SECRET_CODE = "admin123"; // Código secreto
-const JSONBIN_URL = "https://api.jsonbin.io/v3/b/YOUR_BIN_ID"; // Substitua pelo seu BIN
-const JSONBIN_KEY = "YOUR_SECRET_KEY"; // Substitua pela sua chave
 
 // ================= ELEMENTOS =================
 const authSection = document.getElementById('auth');
@@ -23,38 +21,11 @@ const cancelEditBtn = document.getElementById('cancel-edit-btn');
 const addItemBtn = document.getElementById('add-item-btn');
 
 // ================= ARMAZENAMENTO =================
-let publishedItems = [];
+let publishedItems = JSON.parse(localStorage.getItem('publishedItems')) || [];
 
 // ================= FUNÇÕES =================
-async function fetchItems() {
-  try {
-    const res = await fetch(JSONBIN_URL + "/latest", {
-      headers: { "X-Master-Key": JSONBIN_KEY }
-    });
-    const data = await res.json();
-    publishedItems = data.record || [];
-    displayPublishedItems();
-  } catch (err) {
-    console.error("Erro ao carregar itens:", err);
-    executorsGrid.innerHTML = '<div class="empty-message">Erro ao carregar executores.</div>';
-    scriptsGrid.innerHTML = '<div class="empty-message">Erro ao carregar scripts.</div>';
-  }
-}
-
-async function saveItems() {
-  try {
-    await fetch(JSONBIN_URL, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Master-Key": JSONBIN_KEY
-      },
-      body: JSON.stringify(publishedItems)
-    });
-  } catch (err) {
-    console.error("Erro ao salvar itens:", err);
-    showAlert('Erro ao salvar dados.', true);
-  }
+function saveItems() {
+  localStorage.setItem('publishedItems', JSON.stringify(publishedItems));
 }
 
 function checkAuthStatus() {
@@ -149,13 +120,10 @@ authForm.addEventListener('submit', e => {
   }
 });
 
-logoutBtn.addEventListener('click', e => {
-  e.preventDefault();
-  hideUploadSection();
-});
+logoutBtn.addEventListener('click', e => { e.preventDefault(); hideUploadSection(); });
 logoutAdminBtn.addEventListener('click', hideUploadSection);
 
-uploadForm.addEventListener('submit', async e => {
+uploadForm.addEventListener('submit', e => {
   e.preventDefault();
   const title = document.getElementById('title').value.trim();
   const description = document.getElementById('description').value.trim();
@@ -165,13 +133,13 @@ uploadForm.addEventListener('submit', async e => {
 
   const newItem = { id: Date.now(), title, description, type, downloadUrl, date: new Date().toLocaleDateString('pt-BR') };
   publishedItems.push(newItem);
-  await saveItems();
+  saveItems();
   displayPublishedItems();
   uploadForm.reset();
   showAlert('Conteúdo publicado com sucesso!');
 });
 
-editForm.addEventListener('submit', async e => {
+editForm.addEventListener('submit', e => {
   e.preventDefault();
   const id = parseInt(document.getElementById('edit-id').value);
   const item = publishedItems.find(i => i.id === id);
@@ -183,7 +151,7 @@ editForm.addEventListener('submit', async e => {
   item.downloadUrl = document.getElementById('edit-download-url').value.trim();
   item.lastUpdate = new Date().toLocaleDateString('pt-BR');
 
-  await saveItems();
+  saveItems();
   displayPublishedItems();
   cancelEdit();
   showAlert('Conteúdo atualizado com sucesso!');
@@ -198,6 +166,6 @@ addItemBtn.addEventListener('click', () => {
 // ================= INICIALIZAÇÃO =================
 document.addEventListener('DOMContentLoaded', () => {
   checkAuthStatus();
-  fetchItems();
+  displayPublishedItems();
 });
 </script>
