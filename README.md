@@ -58,8 +58,6 @@
         .alert-success { background: #c6f6d5; color: #276749; border: 1px solid #9ae6b4; }
         .empty-message { text-align: center; color: #718096; font-style: italic; padding: 40px; grid-column: 1 / -1; }
         .logout-admin-btn { position: fixed; top: 20px; right: 20px; z-index: 1000; }
-        .progress-container { width: 100%; background: #e2e8f0; border-radius: 10px; margin: 10px 0; display: none; }
-        .progress-bar { height: 20px; background: #48bb78; border-radius: 10px; width: 0%; transition: width 0.3s ease; }
         @media (max-width: 768px) {
             .container { padding: 10px; }
             .hero h1 { font-size: 2rem; }
@@ -111,9 +109,6 @@
                             <button type="button" id="file-select-btn" class="file-upload-btn">Selecionar APK</button>
                             <span id="file-name" class="file-name">Nenhum arquivo selecionado</span>
                         </div>
-                        <div id="progress-container" class="progress-container">
-                            <div id="progress-bar" class="progress-bar"></div>
-                        </div>
                         <small style="color: #718096; font-size: 0.8rem;">
                             ✅ Aceita APKs de qualquer tamanho! Salvos no navegador.
                         </small>
@@ -147,9 +142,6 @@
                             <input type="file" id="edit-file-upload" accept=".apk,.apks" class="hidden">
                             <button type="button" id="edit-file-select-btn" class="file-upload-btn">Selecionar APK</button>
                             <span id="edit-file-name" class="file-name">Nenhum arquivo selecionado</span>
-                        </div>
-                        <div id="edit-progress-container" class="progress-container">
-                            <div id="edit-progress-bar" class="progress-bar"></div>
                         </div>
                         <small style="color: #718096; font-size: 0.8rem;">
                             ✅ Aceita APKs de qualquer tamanho! Salvos no navegador.
@@ -218,8 +210,6 @@
     const urlField = document.getElementById('url-field');
     const fileField = document.getElementById('file-field');
     const uploadTypeBtns = document.querySelectorAll('.upload-type-btn');
-    const progressContainer = document.getElementById('progress-container');
-    const progressBar = document.getElementById('progress-bar');
 
     // Elementos de edição
     const editFileUpload = document.getElementById('edit-file-upload');
@@ -228,8 +218,6 @@
     const editUrlField = document.getElementById('edit-url-field');
     const editFileField = document.getElementById('edit-file-field');
     const editUploadTypeBtns = document.querySelectorAll('#edit-form-container .upload-type-btn');
-    const editProgressContainer = document.getElementById('edit-progress-container');
-    const editProgressBar = document.getElementById('edit-progress-bar');
 
     // Armazenamento
     let publishedItems = JSON.parse(localStorage.getItem('publishedItems')) || [];
@@ -278,20 +266,9 @@
         return false;
     }
 
-    function saveFileToStorage(file, progressBarElement = null, progressContainerElement = null) {
+    function saveFileToStorage(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
-            
-            if (progressContainerElement) {
-                progressContainerElement.style.display = 'block';
-            }
-            
-            reader.onprogress = function(e) {
-                if (e.lengthComputable && progressBarElement) {
-                    const percent = (e.loaded / e.total) * 100;
-                    progressBarElement.style.width = percent + '%';
-                }
-            };
             
             reader.onload = function(e) {
                 try {
@@ -309,26 +286,13 @@
                     const blob = new Blob([new Uint8Array(e.target.result)], { type: file.type });
                     const downloadUrl = URL.createObjectURL(blob);
                     
-                    if (progressContainerElement) {
-                        progressContainerElement.style.display = 'none';
-                        progressBarElement.style.width = '0%';
-                    }
-                    
                     resolve({ fileId, downloadUrl, fileName: file.name });
                 } catch (error) {
-                    if (progressContainerElement) {
-                        progressContainerElement.style.display = 'none';
-                        progressBarElement.style.width = '0%';
-                    }
                     reject(error);
                 }
             };
             
             reader.onerror = () => {
-                if (progressContainerElement) {
-                    progressContainerElement.style.display = 'none';
-                    progressBarElement.style.width = '0%';
-                }
                 reject(new Error('Erro ao ler o arquivo'));
             };
             
@@ -539,12 +503,11 @@
 
                 const file = fileUpload.files[0];
                 if (!handleFileSelect(fileUpload, fileName)) {
-                    return; // Já mostra alerta na função handleFileSelect
+                    return;
                 }
 
                 try {
-                    showAlert('Salvando arquivo... Isso pode demorar para arquivos grandes.', false);
-                    const result = await saveFileToStorage(file, progressBar, progressContainer);
+                    const result = await saveFileToStorage(file);
                     downloadUrl = result.downloadUrl;
                     fileId = result.fileId;
                     fileNameText = result.fileName;
@@ -604,9 +567,8 @@
             } else {
                 if (editFileUpload.files.length > 0) {
                     try {
-                        showAlert('Salvando novo arquivo...', false);
                         const file = editFileUpload.files[0];
-                        const result = await saveFileToStorage(file, editProgressBar, editProgressContainer);
+                        const result = await saveFileToStorage(file);
                         if (item.fileId && fileStorage[item.fileId]) {
                             delete fileStorage[item.fileId];
                         }
