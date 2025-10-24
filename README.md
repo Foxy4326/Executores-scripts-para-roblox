@@ -1,4 +1,4 @@
-⁸<script>
+<script>
 // ================= CONFIGURAÇÃO =================
 const SECRET_CODE = "admin123"; // Código secreto
 
@@ -88,8 +88,10 @@ function createCard(item) {
 
     // Adiciona eventos aos botões de admin, se existirem
     if (localStorage.getItem('authenticated') === 'true') {
-        card.querySelector('.edit-btn').addEventListener('click', () => showEditForm(item.id));
-        card.querySelector('.delete-btn').addEventListener('click', () => deleteItem(item.id));
+        const editBtn = card.querySelector('.edit-btn');
+        const deleteBtn = card.querySelector('.delete-btn');
+        if (editBtn) editBtn.addEventListener('click', () => showEditForm(item.id));
+        if (deleteBtn) deleteBtn.addEventListener('click', () => deleteItem(item.id));
     }
     
     return card;
@@ -131,21 +133,6 @@ function showAlert(msg, error = false) {
     setTimeout(() => uploadMessage.classList.add('hidden'), 4000);
 }
 
-// ================= TRATAMENTO DE ERRO 404 (OPCIONAL) =================
-// Esta função agora está aqui, mas não é chamada na inicialização
-// para evitar o erro ao abrir o arquivo localmente.
-function checkPageNotFound() {
-    const validPaths = ['/', '/index.html', ''];
-    const currentPath = window.location.pathname;
-    const isAnchorLink = currentPath === '/' && window.location.hash;
-    
-    if (!validPaths.includes(currentPath) && !isAnchorLink) {
-        showErrorPage();
-        return true;
-    }
-    return false;
-}
-
 function showErrorPage() {
     mainContent.style.display = 'none';
     errorPage.style.display = 'flex';
@@ -159,114 +146,131 @@ function hideErrorPage() {
     window.history.replaceState({}, document.title, window.location.origin + '/');
 }
 
-// ================= EVENTOS =================
-authForm.addEventListener('submit', e => {
-    e.preventDefault();
-    if (accessCodeInput.value.trim() === SECRET_CODE) {
-        localStorage.setItem('authenticated', 'true');
-        showUploadSection();
-        authMessage.classList.add('hidden');
-        displayPublishedItems(); // Atualiza os cards para mostrar os botões de admin
-    } else {
-        authMessage.textContent = 'Código de acesso incorreto. Tente novamente.';
-        authMessage.classList.remove('hidden');
-        accessCodeInput.value = '';
-    }
-});
-
 function handleLogout() {
     hideUploadSection();
-    displayPublishedItems(); // Atualiza os cards para esconder os botões de admin
+    displayPublishedItems();
 }
 
-logoutBtn.addEventListener('click', e => { 
-    e.preventDefault(); 
-    handleLogout();
-});
-
-logoutAdminBtn.addEventListener('click', handleLogout);
-
-uploadForm.addEventListener('submit', e => {
-    e.preventDefault();
-    const title = document.getElementById('title').value.trim();
-    const description = document.getElementById('description').value.trim();
-    const type = document.getElementById('type').value;
-    const downloadUrl = document.getElementById('download-url').value.trim();
-    if (!title || !description || !type || !downloadUrl) { 
-        showAlert('Preencha todos os campos', true); 
-        return; 
+// ================= EVENT LISTENERS =================
+function initializeEventListeners() {
+    // Autenticação
+    if (authForm) {
+        authForm.addEventListener('submit', e => {
+            e.preventDefault();
+            if (accessCodeInput.value.trim() === SECRET_CODE) {
+                localStorage.setItem('authenticated', 'true');
+                showUploadSection();
+                authMessage.classList.add('hidden');
+                displayPublishedItems();
+            } else {
+                authMessage.textContent = 'Código de acesso incorreto. Tente novamente.';
+                authMessage.classList.remove('hidden');
+                accessCodeInput.value = '';
+            }
+        });
     }
 
-    const newItem = { 
-        id: Date.now(), 
-        title, 
-        description, 
-        type, 
-        downloadUrl, 
-        date: new Date().toLocaleDateString('pt-BR') 
-    };
-    publishedItems.push(newItem);
-    saveItems();
-    displayPublishedItems();
-    uploadForm.reset();
-    showAlert('Conteúdo publicado com sucesso!');
-});
-
-editForm.addEventListener('submit', e => {
-    e.preventDefault();
-    const id = parseInt(document.getElementById('edit-id').value);
-    const item = publishedItems.find(i => i.id === id);
-    if (!item) return;
-
-    item.title = document.getElementById('edit-title').value.trim();
-    item.description = document.getElementById('edit-description').value.trim();
-    item.type = document.getElementById('edit-type').value;
-    item.downloadUrl = document.getElementById('edit-download-url').value.trim();
-    item.lastUpdate = new Date().toLocaleDateString('pt-BR');
-
-    saveItems();
-    displayPublishedItems();
-    cancelEdit();
-    showAlert('Conteúdo atualizado com sucesso!');
-});
-
-cancelEditBtn.addEventListener('click', cancelEdit);
-
-addItemBtn.addEventListener('click', () => {
-    cancelEdit();
-    uploadFormContainer.scrollIntoView({ behavior: 'smooth' });
-});
-
-homeRedirect.addEventListener('click', (e) => {
-    e.preventDefault();
-    hideErrorPage();
-});
-
-// ================= INICIALIZAÇÃO (CORRIGIDA) =================
-document.addEventListener('DOMContentLoaded', () => {
-    // A verificação de 404 foi desativada para funcionar localmente
-    // const isNotFound = checkPageNotFound();
-    // if (!isNotFound) {
-    
-        checkAuthStatus();
-        displayPublishedItems();
-        
-        // Suaviza o scroll para links âncora
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                
-                // Código de scroll suave que estava faltando
-                const targetId = this.getAttribute('href');
-                const targetElement = document.querySelector(targetId);
-                if (targetElement) {
-                    targetElement.scrollIntoView({
-                        behavior: 'smooth'
-                    });
-                }
-            });
+    // Logout
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', e => { 
+            e.preventDefault(); 
+            handleLogout();
         });
-        
-    // } // Fim do 'if' comentado
+    }
+
+    if (logoutAdminBtn) {
+        logoutAdminBtn.addEventListener('click', handleLogout);
+    }
+
+    // Upload de conteúdo
+    if (uploadForm) {
+        uploadForm.addEventListener('submit', e => {
+            e.preventDefault();
+            const title = document.getElementById('title').value.trim();
+            const description = document.getElementById('description').value.trim();
+            const type = document.getElementById('type').value;
+            const downloadUrl = document.getElementById('download-url').value.trim();
+            
+            if (!title || !description || !type || !downloadUrl) { 
+                showAlert('Preencha todos os campos', true); 
+                return; 
+            }
+
+            const newItem = { 
+                id: Date.now(), 
+                title, 
+                description, 
+                type, 
+                downloadUrl, 
+                date: new Date().toLocaleDateString('pt-BR') 
+            };
+            publishedItems.push(newItem);
+            saveItems();
+            displayPublishedItems();
+            uploadForm.reset();
+            showAlert('Conteúdo publicado com sucesso!');
+        });
+    }
+
+    // Edição de conteúdo
+    if (editForm) {
+        editForm.addEventListener('submit', e => {
+            e.preventDefault();
+            const id = parseInt(document.getElementById('edit-id').value);
+            const item = publishedItems.find(i => i.id === id);
+            if (!item) return;
+
+            item.title = document.getElementById('edit-title').value.trim();
+            item.description = document.getElementById('edit-description').value.trim();
+            item.type = document.getElementById('edit-type').value;
+            item.downloadUrl = document.getElementById('edit-download-url').value.trim();
+            item.lastUpdate = new Date().toLocaleDateString('pt-BR');
+
+            saveItems();
+            displayPublishedItems();
+            cancelEdit();
+            showAlert('Conteúdo atualizado com sucesso!');
+        });
+    }
+
+    // Botões de interface
+    if (cancelEditBtn) {
+        cancelEditBtn.addEventListener('click', cancelEdit);
+    }
+
+    if (addItemBtn) {
+        addItemBtn.addEventListener('click', () => {
+            cancelEdit();
+            uploadFormContainer.scrollIntoView({ behavior: 'smooth' });
+        });
+    }
+
+    if (homeRedirect) {
+        homeRedirect.addEventListener('click', (e) => {
+            e.preventDefault();
+            hideErrorPage();
+        });
+    }
+
+    // Scroll suave para âncoras
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            if (targetElement) {
+                targetElement.scrollIntoView({
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+}
+
+// ================= INICIALIZAÇÃO =================
+document.addEventListener('DOMContentLoaded', () => {
+    checkAuthStatus();
+    displayPublishedItems();
+    initializeEventListeners();
 });
 </script>
