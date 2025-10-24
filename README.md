@@ -346,27 +346,6 @@
             z-index: 1000;
         }
         
-        /* Página de erro */
-        .error-page {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            text-align: center;
-            color: white;
-        }
-        
-        .error-content h1 {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-        }
-        
-        .error-content p {
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
-            opacity: 0.9;
-        }
-        
         /* Responsivo */
         @media (max-width: 768px) {
             .container {
@@ -520,15 +499,6 @@
                 <div id="scripts-grid" class="grid"></div>
             </section>
         </main>
-
-        <!-- Página de Erro 404 -->
-        <div id="error-page" class="error-page hidden">
-            <div class="error-content">
-                <h1>404 - Página Não Encontrada</h1>
-                <p>A página que você está procurando não existe.</p>
-                <a href="#" id="home-redirect" class="btn btn-primary">Voltar para Home</a>
-            </div>
-        </div>
     </div>
 
     <!-- BOTÃO DE LOGOUT ADMIN (fixo) -->
@@ -556,9 +526,6 @@
     const editFormContainer = document.getElementById('edit-form-container');
     const cancelEditBtn = document.getElementById('cancel-edit-btn');
     const addItemBtn = document.getElementById('add-item-btn');
-    const errorPage = document.getElementById('error-page');
-    const mainContent = document.getElementById('main-content');
-    const homeRedirect = document.getElementById('home-redirect');
 
     // Elementos de upload de arquivo
     const fileUpload = document.getElementById('file-upload');
@@ -660,15 +627,6 @@
             reader.onerror = () => reject(new Error('Erro ao ler o arquivo'));
             reader.readAsArrayBuffer(file);
         });
-    }
-
-    function getFileFromStorage(fileId) {
-        const fileData = fileStorage[fileId];
-        if (!fileData) return null;
-        
-        // Converter de volta para Blob
-        const blob = new Blob([new Uint8Array(fileData.data)], { type: fileData.type });
-        return URL.createObjectURL(blob);
     }
 
     function cleanupFileStorage() {
@@ -916,7 +874,7 @@
                         return;
                     }
                 } else {
-                    if (!handleFileSelect(fileUpload, fileNameElement)) {
+                    if (!handleFileSelect(fileUpload, fileName)) {
                         showAlert('Selecione um arquivo APK válido', true);
                         return;
                     }
@@ -1029,14 +987,6 @@
             addItemBtn.addEventListener('click', () => {
                 cancelEdit();
                 uploadFormContainer.scrollIntoView({ behavior: 'smooth' });
-            });
-        }
-
-        if (homeRedirect) {
-            homeRedirect.addEventListener('click', (e) => {
-                e.preventDefault();
-                errorPage.classList.add('hidden');
-                mainContent.style.display = 'block';
             });
         }
 
