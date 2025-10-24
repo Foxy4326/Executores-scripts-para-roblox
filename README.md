@@ -450,6 +450,9 @@
                             <button type="button" id="file-select-btn" class="file-upload-btn">Selecionar APK</button>
                             <span id="file-name" class="file-name">Nenhum arquivo selecionado</span>
                         </div>
+                        <small style="color: #718096; font-size: 0.8rem;">
+                            ⚠️ Arquivos APK são salvos apenas no navegador atual
+                        </small>
                     </div>
                     
                     <button type="submit" class="btn btn-success">Publicar</button>
@@ -481,6 +484,9 @@
                             <button type="button" id="edit-file-select-btn" class="file-upload-btn">Selecionar APK</button>
                             <span id="edit-file-name" class="file-name">Nenhum arquivo selecionado</span>
                         </div>
+                        <small style="color: #718096; font-size: 0.8rem;">
+                            ⚠️ Arquivos APK são salvos apenas no navegador atual
+                        </small>
                     </div>
                     
                     <div class="form-actions">
@@ -572,6 +578,7 @@
 
     // ================= ARMAZENAMENTO =================
     let publishedItems = JSON.parse(localStorage.getItem('publishedItems')) || [];
+    let fileStorage = JSON.parse(localStorage.getItem('fileStorage')) || {};
 
     // ================= FUNÇÕES DE UPLOAD =================
     function setUploadType(type) {
@@ -613,23 +620,78 @@
                 return false;
             }
             
+            // Validar tamanho do arquivo (máximo 100MB)
+            if (file.size > 100 * 1024 * 1024) {
+                showAlert('O arquivo é muito grande. Tamanho máximo: 100MB', true);
+                fileInput.value = '';
+                fileNameElement.textContent = 'Nenhum arquivo selecionado';
+                return false;
+            }
+            
             return true;
         }
         return false;
     }
 
-    function simulateFileUpload(file) {
-        // Em um sistema real, aqui você faria o upload para um servidor
-        // Por enquanto, vamos simular criando uma URL local
-        return new Promise((resolve) => {
+    function saveFileToStorage(file) {
+        return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = function(e) {
-                // Em produção, substitua por uma URL real do seu servidor
-                const fakeDownloadUrl = `https://seuservidor.com/apks/${file.name}`;
-                resolve(fakeDownloadUrl);
+                try {
+                    const fileId = 'file_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                    const fileData = {
+                        name: file.name,
+                        type: file.type,
+                        size: file.size,
+                        data: e.target.result,
+                        uploadDate: new Date().toISOString()
+                    };
+                    
+                    fileStorage[fileId] = fileData;
+                    localStorage.setItem('fileStorage', JSON.stringify(fileStorage));
+                    
+                    // Criar URL para download
+                    const downloadUrl = URL.createObjectURL(file);
+                    resolve({ fileId, downloadUrl, fileName: file.name });
+                } catch (error) {
+                    reject(error);
+                }
             };
-            reader.readAsDataURL(file);
+            reader.onerror = () => reject(new Error('Erro ao ler o arquivo'));
+            reader.readAsArrayBuffer(file);
         });
+    }
+
+    function getFileFromStorage(fileId) {
+        const fileData = fileStorage[fileId];
+        if (!fileData) return null;
+        
+        // Converter de volta para Blob
+        const blob = new Blob([new Uint8Array(fileData.data)], { type: fileData.type });
+        return URL.createObjectURL(blob);
+    }
+
+    function cleanupFileStorage() {
+        // Limpar arquivos que não estão mais sendo usados
+        const usedFileIds = new Set();
+        publishedItems.forEach(item => {
+            if (item.fileId) {
+                usedFileIds.add(item.fileId);
+            }
+        });
+
+        Object.keys(fileStorage).forEach(fileId => {
+            if (!usedFileIds.has(fileId)) {
+                // Liberar URL do blob
+                const fileData = fileStorage[fileId];
+                if (fileData.downloadUrl) {
+                    URL.revokeObjectURL(fileData.downloadUrl);
+                }
+                delete fileStorage[fileId];
+            }
+        });
+
+        localStorage.setItem('fileStorage', JSON.stringify(fileStorage));
     }
 
     // ================= FUNÇÕES PRINCIPAIS =================
@@ -685,12 +747,16 @@
             </div>
         ` : '';
 
+        // Se for um arquivo, adicionar informação do tamanho
+        const fileInfo = item.fileSize ? `<div class="file-size" style="font-size: 0.8rem; color: #718096; margin-top: 5px;">Tamanho: ${formatFileSize(item.fileSize)}</div>` : '';
+
         card.innerHTML = `
             <div class="card-header"><h3>${item.title}</h3></div>
             <div class="card-body">
                 <p>${item.description}</p>
                 <p class="date">${dateText}</p>
-                <a href="${item.downloadUrl}" target="_blank" class="btn download-btn">
+                ${fileInfo}
+                <a href="${item.downloadUrl}" target="_blank" class="btn download-btn" download="${item.fileName || 'download'}">
                     ${item.type === 'executor' ? 'Baixar APK' : 'Baixar Script'}
                 </a>
                 ${adminButtons}
@@ -707,8 +773,24 @@
         return card;
     }
 
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
     function deleteItem(id) {
         if (confirm('Tem certeza que deseja excluir este item?')) {
+            const item = publishedItems.find(i => i.id === id);
+            // Liberar URL do blob se for um arquivo
+            if (item && item.fileId && fileStorage[item.fileId]) {
+                URL.revokeObjectURL(item.downloadUrl);
+                delete fileStorage[item.fileId];
+                localStorage.setItem('fileStorage', JSON.stringify(fileStorage));
+            }
+            
             publishedItems = publishedItems.filter(i => i.id !== id);
             saveItems();
             displayPublishedItems();
@@ -724,14 +806,16 @@
         document.getElementById('edit-title').value = item.title;
         document.getElementById('edit-description').value = item.description;
         document.getElementById('edit-type').value = item.type;
-        document.getElementById('edit-download-url').value = item.downloadUrl;
 
-        // Definir tipo de upload baseado na URL atual
-        if (item.downloadUrl.includes('blob:') || item.downloadType === 'file') {
+        // Definir tipo de upload baseado no item
+        if (item.fileId) {
             setUploadType('file');
-            editFileName.textContent = 'Arquivo já carregado';
+            editFileName.textContent = item.fileName || 'Arquivo carregado';
+            document.getElementById('edit-download-url').value = '';
         } else {
             setUploadType('url');
+            document.getElementById('edit-download-url').value = item.downloadUrl;
+            editFileName.textContent = 'Nenhum arquivo selecionado';
         }
 
         uploadFormContainer.classList.add('hidden');
@@ -821,6 +905,9 @@
                 }
 
                 let downloadUrl = '';
+                let fileId = null;
+                let fileName = '';
+                let fileSize = 0;
 
                 if (currentUploadType === 'url') {
                     downloadUrl = document.getElementById('download-url').value.trim();
@@ -829,16 +916,21 @@
                         return;
                     }
                 } else {
-                    if (!handleFileSelect(fileUpload, fileName)) {
+                    if (!handleFileSelect(fileUpload, fileNameElement)) {
                         showAlert('Selecione um arquivo APK válido', true);
                         return;
                     }
 
                     try {
-                        showAlert('Fazendo upload do arquivo...', false);
-                        downloadUrl = await simulateFileUpload(fileUpload.files[0]);
+                        showAlert('Salvando arquivo...', false);
+                        const file = fileUpload.files[0];
+                        const result = await saveFileToStorage(file);
+                        downloadUrl = result.downloadUrl;
+                        fileId = result.fileId;
+                        fileName = result.fileName;
+                        fileSize = file.size;
                     } catch (error) {
-                        showAlert('Erro ao fazer upload do arquivo', true);
+                        showAlert('Erro ao salvar o arquivo: ' + error.message, true);
                         return;
                     }
                 }
@@ -850,6 +942,9 @@
                     type, 
                     downloadUrl, 
                     downloadType: currentUploadType,
+                    fileId,
+                    fileName,
+                    fileSize,
                     date: new Date().toLocaleDateString('pt-BR') 
                 };
                 publishedItems.push(newItem);
@@ -875,6 +970,15 @@
                 item.type = document.getElementById('edit-type').value;
 
                 if (currentUploadType === 'url') {
+                    // Se estava usando arquivo e mudou para URL, limpar dados do arquivo
+                    if (item.fileId) {
+                        URL.revokeObjectURL(item.downloadUrl);
+                        delete fileStorage[item.fileId];
+                        localStorage.setItem('fileStorage', JSON.stringify(fileStorage));
+                        item.fileId = null;
+                        item.fileName = '';
+                        item.fileSize = 0;
+                    }
                     item.downloadUrl = document.getElementById('edit-download-url').value.trim();
                     if (!item.downloadUrl) {
                         showAlert('Informe a URL de download', true);
@@ -883,20 +987,33 @@
                 } else {
                     if (editFileUpload.files.length > 0) {
                         try {
-                            showAlert('Fazendo upload do novo arquivo...', false);
-                            item.downloadUrl = await simulateFileUpload(editFileUpload.files[0]);
+                            showAlert('Salvando novo arquivo...', false);
+                            const file = editFileUpload.files[0];
+                            const result = await saveFileToStorage(file);
+                            
+                            // Liberar arquivo anterior se existir
+                            if (item.fileId && fileStorage[item.fileId]) {
+                                URL.revokeObjectURL(item.downloadUrl);
+                                delete fileStorage[item.fileId];
+                            }
+                            
+                            item.downloadUrl = result.downloadUrl;
+                            item.fileId = result.fileId;
+                            item.fileName = result.fileName;
+                            item.fileSize = file.size;
                         } catch (error) {
-                            showAlert('Erro ao fazer upload do arquivo', true);
+                            showAlert('Erro ao salvar o arquivo: ' + error.message, true);
                             return;
                         }
                     }
-                    // Se não selecionou novo arquivo, mantém o URL atual
+                    // Se não selecionou novo arquivo, mantém os dados atuais
                 }
 
                 item.downloadType = currentUploadType;
                 item.lastUpdate = new Date().toLocaleDateString('pt-BR');
 
                 saveItems();
+                localStorage.setItem('fileStorage', JSON.stringify(fileStorage));
                 displayPublishedItems();
                 cancelEdit();
                 showAlert('Conteúdo atualizado com sucesso!');
@@ -938,6 +1055,9 @@
 
     // ================= INICIALIZAÇÃO =================
     document.addEventListener('DOMContentLoaded', () => {
+        // Limpar storage de arquivos não utilizados
+        cleanupFileStorage();
+        
         checkAuthStatus();
         displayPublishedItems();
         initializeEventListeners();
