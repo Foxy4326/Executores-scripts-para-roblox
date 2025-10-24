@@ -173,6 +173,54 @@
             resize: vertical;
         }
         
+        .file-upload-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .file-upload-btn {
+            background: #4299e1;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .file-upload-btn:hover {
+            background: #3182ce;
+        }
+        
+        .file-name {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+        
+        .upload-type-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .upload-type-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-type-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
         /* Botões */
         .btn {
             padding: 12px 25px;
@@ -350,6 +398,10 @@
             .form-actions {
                 flex-direction: column;
             }
+            
+            .upload-type-selector {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -379,7 +431,27 @@
                         <option value="executor">Executor</option>
                         <option value="script">Script</option>
                     </select>
-                    <input type="url" id="download-url" placeholder="URL de Download" required>
+                    
+                    <!-- Seletor de tipo de upload -->
+                    <div class="upload-type-selector">
+                        <button type="button" class="upload-type-btn active" data-type="url">URL/Link</button>
+                        <button type="button" class="upload-type-btn" data-type="file">Arquivo APK</button>
+                    </div>
+                    
+                    <!-- Campo para URL -->
+                    <div id="url-field">
+                        <input type="url" id="download-url" placeholder="https://exemplo.com/download" required>
+                    </div>
+                    
+                    <!-- Campo para upload de arquivo -->
+                    <div id="file-field" class="hidden">
+                        <div class="file-upload-container">
+                            <input type="file" id="file-upload" accept=".apk,.apks" class="hidden">
+                            <button type="button" id="file-select-btn" class="file-upload-btn">Selecionar APK</button>
+                            <span id="file-name" class="file-name">Nenhum arquivo selecionado</span>
+                        </div>
+                    </div>
+                    
                     <button type="submit" class="btn btn-success">Publicar</button>
                 </form>
             </div>
@@ -393,7 +465,24 @@
                         <option value="executor">Executor</option>
                         <option value="script">Script</option>
                     </select>
-                    <input type="url" id="edit-download-url" placeholder="URL de Download" required>
+                    
+                    <div class="upload-type-selector">
+                        <button type="button" class="upload-type-btn active" data-type="url">URL/Link</button>
+                        <button type="button" class="upload-type-btn" data-type="file">Arquivo APK</button>
+                    </div>
+                    
+                    <div id="edit-url-field">
+                        <input type="url" id="edit-download-url" placeholder="URL de Download" required>
+                    </div>
+                    
+                    <div id="edit-file-field" class="hidden">
+                        <div class="file-upload-container">
+                            <input type="file" id="edit-file-upload" accept=".apk,.apks" class="hidden">
+                            <button type="button" id="edit-file-select-btn" class="file-upload-btn">Selecionar APK</button>
+                            <span id="edit-file-name" class="file-name">Nenhum arquivo selecionado</span>
+                        </div>
+                    </div>
+                    
                     <div class="form-actions">
                         <button type="submit" class="btn btn-success">Atualizar</button>
                         <button type="button" id="cancel-edit-btn" class="btn btn-secondary">Cancelar</button>
@@ -442,6 +531,7 @@
     <script>
     // ================= CONFIGURAÇÃO =================
     const SECRET_CODE = "admin123";
+    let currentUploadType = 'url'; // 'url' ou 'file'
 
     // ================= ELEMENTOS =================
     const authSection = document.getElementById('auth');
@@ -464,8 +554,83 @@
     const mainContent = document.getElementById('main-content');
     const homeRedirect = document.getElementById('home-redirect');
 
+    // Elementos de upload de arquivo
+    const fileUpload = document.getElementById('file-upload');
+    const fileSelectBtn = document.getElementById('file-select-btn');
+    const fileName = document.getElementById('file-name');
+    const urlField = document.getElementById('url-field');
+    const fileField = document.getElementById('file-field');
+    const uploadTypeBtns = document.querySelectorAll('.upload-type-btn');
+
+    // Elementos de edição de arquivo
+    const editFileUpload = document.getElementById('edit-file-upload');
+    const editFileSelectBtn = document.getElementById('edit-file-select-btn');
+    const editFileName = document.getElementById('edit-file-name');
+    const editUrlField = document.getElementById('edit-url-field');
+    const editFileField = document.getElementById('edit-file-field');
+    const editUploadTypeBtns = document.querySelectorAll('#edit-form-container .upload-type-btn');
+
     // ================= ARMAZENAMENTO =================
     let publishedItems = JSON.parse(localStorage.getItem('publishedItems')) || [];
+
+    // ================= FUNÇÕES DE UPLOAD =================
+    function setUploadType(type) {
+        currentUploadType = type;
+        
+        // Atualizar botões
+        uploadTypeBtns.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.type === type);
+        });
+        
+        editUploadTypeBtns.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.type === type);
+        });
+        
+        // Mostrar/ocultar campos
+        if (type === 'url') {
+            urlField.classList.remove('hidden');
+            fileField.classList.add('hidden');
+            editUrlField.classList.remove('hidden');
+            editFileField.classList.add('hidden');
+        } else {
+            urlField.classList.add('hidden');
+            fileField.classList.remove('hidden');
+            editUrlField.classList.add('hidden');
+            editFileField.classList.remove('hidden');
+        }
+    }
+
+    function handleFileSelect(fileInput, fileNameElement) {
+        if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            fileNameElement.textContent = file.name;
+            
+            // Validar se é um arquivo APK
+            if (!file.name.toLowerCase().endsWith('.apk') && !file.name.toLowerCase().endsWith('.apks')) {
+                showAlert('Por favor, selecione um arquivo APK válido.', true);
+                fileInput.value = '';
+                fileNameElement.textContent = 'Nenhum arquivo selecionado';
+                return false;
+            }
+            
+            return true;
+        }
+        return false;
+    }
+
+    function simulateFileUpload(file) {
+        // Em um sistema real, aqui você faria o upload para um servidor
+        // Por enquanto, vamos simular criando uma URL local
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                // Em produção, substitua por uma URL real do seu servidor
+                const fakeDownloadUrl = `https://seuservidor.com/apks/${file.name}`;
+                resolve(fakeDownloadUrl);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
 
     // ================= FUNÇÕES PRINCIPAIS =================
     function saveItems() { 
@@ -525,7 +690,9 @@
             <div class="card-body">
                 <p>${item.description}</p>
                 <p class="date">${dateText}</p>
-                <a href="${item.downloadUrl}" target="_blank" class="btn download-btn">${item.type === 'executor' ? 'Baixar APK' : 'Baixar Script'}</a>
+                <a href="${item.downloadUrl}" target="_blank" class="btn download-btn">
+                    ${item.type === 'executor' ? 'Baixar APK' : 'Baixar Script'}
+                </a>
                 ${adminButtons}
             </div>
         `;
@@ -552,11 +719,20 @@
     function showEditForm(id) {
         const item = publishedItems.find(i => i.id === id);
         if (!item) return;
+        
         document.getElementById('edit-id').value = id;
         document.getElementById('edit-title').value = item.title;
         document.getElementById('edit-description').value = item.description;
         document.getElementById('edit-type').value = item.type;
         document.getElementById('edit-download-url').value = item.downloadUrl;
+
+        // Definir tipo de upload baseado na URL atual
+        if (item.downloadUrl.includes('blob:') || item.downloadType === 'file') {
+            setUploadType('file');
+            editFileName.textContent = 'Arquivo já carregado';
+        } else {
+            setUploadType('url');
+        }
 
         uploadFormContainer.classList.add('hidden');
         editFormContainer.classList.remove('hidden');
@@ -567,6 +743,7 @@
         editFormContainer.classList.add('hidden');
         uploadFormContainer.classList.remove('hidden');
         editForm.reset();
+        setUploadType('url'); // Reset para URL por padrão
     }
 
     function showAlert(msg, error = false) {
@@ -585,6 +762,23 @@
 
     // ================= EVENT LISTENERS =================
     function initializeEventListeners() {
+        // Eventos de tipo de upload
+        uploadTypeBtns.forEach(btn => {
+            btn.addEventListener('click', () => setUploadType(btn.dataset.type));
+        });
+
+        editUploadTypeBtns.forEach(btn => {
+            btn.addEventListener('click', () => setUploadType(btn.dataset.type));
+        });
+
+        // Eventos de seleção de arquivo
+        fileSelectBtn.addEventListener('click', () => fileUpload.click());
+        fileUpload.addEventListener('change', () => handleFileSelect(fileUpload, fileName));
+
+        editFileSelectBtn.addEventListener('click', () => editFileUpload.click());
+        editFileUpload.addEventListener('change', () => handleFileSelect(editFileUpload, editFileName));
+
+        // Autenticação
         if (authForm) {
             authForm.addEventListener('submit', e => {
                 e.preventDefault();
@@ -601,6 +795,7 @@
             });
         }
 
+        // Logout
         if (logoutBtn) {
             logoutBtn.addEventListener('click', e => { 
                 e.preventDefault(); 
@@ -612,17 +807,40 @@
             logoutAdminBtn.addEventListener('click', handleLogout);
         }
 
+        // Upload de conteúdo
         if (uploadForm) {
-            uploadForm.addEventListener('submit', e => {
+            uploadForm.addEventListener('submit', async e => {
                 e.preventDefault();
                 const title = document.getElementById('title').value.trim();
                 const description = document.getElementById('description').value.trim();
                 const type = document.getElementById('type').value;
-                const downloadUrl = document.getElementById('download-url').value.trim();
                 
-                if (!title || !description || !type || !downloadUrl) { 
+                if (!title || !description || !type) { 
                     showAlert('Preencha todos os campos', true); 
                     return; 
+                }
+
+                let downloadUrl = '';
+
+                if (currentUploadType === 'url') {
+                    downloadUrl = document.getElementById('download-url').value.trim();
+                    if (!downloadUrl) {
+                        showAlert('Informe a URL de download', true);
+                        return;
+                    }
+                } else {
+                    if (!handleFileSelect(fileUpload, fileName)) {
+                        showAlert('Selecione um arquivo APK válido', true);
+                        return;
+                    }
+
+                    try {
+                        showAlert('Fazendo upload do arquivo...', false);
+                        downloadUrl = await simulateFileUpload(fileUpload.files[0]);
+                    } catch (error) {
+                        showAlert('Erro ao fazer upload do arquivo', true);
+                        return;
+                    }
                 }
 
                 const newItem = { 
@@ -631,18 +849,22 @@
                     description, 
                     type, 
                     downloadUrl, 
+                    downloadType: currentUploadType,
                     date: new Date().toLocaleDateString('pt-BR') 
                 };
                 publishedItems.push(newItem);
                 saveItems();
                 displayPublishedItems();
                 uploadForm.reset();
+                fileName.textContent = 'Nenhum arquivo selecionado';
+                setUploadType('url'); // Reset para URL
                 showAlert('Conteúdo publicado com sucesso!');
             });
         }
 
+        // Edição de conteúdo
         if (editForm) {
-            editForm.addEventListener('submit', e => {
+            editForm.addEventListener('submit', async e => {
                 e.preventDefault();
                 const id = parseInt(document.getElementById('edit-id').value);
                 const item = publishedItems.find(i => i.id === id);
@@ -651,7 +873,27 @@
                 item.title = document.getElementById('edit-title').value.trim();
                 item.description = document.getElementById('edit-description').value.trim();
                 item.type = document.getElementById('edit-type').value;
-                item.downloadUrl = document.getElementById('edit-download-url').value.trim();
+
+                if (currentUploadType === 'url') {
+                    item.downloadUrl = document.getElementById('edit-download-url').value.trim();
+                    if (!item.downloadUrl) {
+                        showAlert('Informe a URL de download', true);
+                        return;
+                    }
+                } else {
+                    if (editFileUpload.files.length > 0) {
+                        try {
+                            showAlert('Fazendo upload do novo arquivo...', false);
+                            item.downloadUrl = await simulateFileUpload(editFileUpload.files[0]);
+                        } catch (error) {
+                            showAlert('Erro ao fazer upload do arquivo', true);
+                            return;
+                        }
+                    }
+                    // Se não selecionou novo arquivo, mantém o URL atual
+                }
+
+                item.downloadType = currentUploadType;
                 item.lastUpdate = new Date().toLocaleDateString('pt-BR');
 
                 saveItems();
@@ -661,6 +903,7 @@
             });
         }
 
+        // Botões de interface
         if (cancelEditBtn) {
             cancelEditBtn.addEventListener('click', cancelEdit);
         }
@@ -680,6 +923,7 @@
             });
         }
 
+        // Scroll suave para âncoras
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -697,6 +941,7 @@
         checkAuthStatus();
         displayPublishedItems();
         initializeEventListeners();
+        setUploadType('url'); // Definir URL como padrão
     });
     </script>
 </body>
