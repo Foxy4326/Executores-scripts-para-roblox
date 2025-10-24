@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Executores e Scripts - Sistema Completo</title>
+    <title>Executores e Scripts</title>
     <style>
         * {
             margin: 0;
@@ -29,7 +29,6 @@
             display: none !important;
         }
         
-        /* Header e Navegação */
         .hero {
             text-align: center;
             padding: 60px 20px;
@@ -48,7 +47,6 @@
             opacity: 0.9;
         }
         
-        /* Seções */
         .section {
             background: white;
             margin: 30px 0;
@@ -65,7 +63,6 @@
             padding-bottom: 10px;
         }
         
-        /* Grid de Cards */
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -100,7 +97,7 @@
         }
         
         .date {
-            color: #718096 !important;
+            color: #718096;
             font-size: 0.9rem;
             font-style: italic;
         }
@@ -111,7 +108,6 @@
             gap: 10px;
         }
         
-        /* Formulários */
         .auth-section {
             background: white;
             margin: 50px auto;
@@ -154,7 +150,6 @@
             flex-wrap: wrap;
         }
         
-        /* Inputs */
         input, textarea, select {
             padding: 15px;
             border: 2px solid #e2e8f0;
@@ -221,7 +216,6 @@
             border-color: #667eea;
         }
         
-        /* Botões */
         .btn {
             padding: 12px 25px;
             border: none;
@@ -309,7 +303,6 @@
             background: #3182ce;
         }
         
-        /* Alertas */
         .alert {
             padding: 15px;
             border-radius: 8px;
@@ -329,7 +322,6 @@
             border: 1px solid #9ae6b4;
         }
         
-        /* Mensagens vazias */
         .empty-message {
             text-align: center;
             color: #718096;
@@ -338,7 +330,6 @@
             grid-column: 1 / -1;
         }
         
-        /* Botão de logout admin */
         .logout-admin-btn {
             position: fixed;
             top: 20px;
@@ -346,7 +337,6 @@
             z-index: 1000;
         }
         
-        /* Progress Bar */
         .progress-container {
             width: 100%;
             background: #e2e8f0;
@@ -363,7 +353,6 @@
             transition: width 0.3s ease;
         }
         
-        /* Responsivo */
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
@@ -403,7 +392,6 @@
 </head>
 <body>
     <div class="container">
-        <!-- Seção de Autenticação -->
         <section id="auth" class="auth-section">
             <div class="auth-container">
                 <h1>Acesso Administrativo</h1>
@@ -415,7 +403,6 @@
             </div>
         </section>
 
-        <!-- Seção de Upload (inicialmente hidden) -->
         <section id="upload" class="upload-section hidden">
             <h2>Publicar Novo Conteúdo</h2>
             <div id="upload-form-container">
@@ -428,18 +415,15 @@
                         <option value="script">Script</option>
                     </select>
                     
-                    <!-- Seletor de tipo de upload -->
                     <div class="upload-type-selector">
                         <button type="button" class="upload-type-btn active" data-type="url">URL/Link</button>
                         <button type="button" class="upload-type-btn" data-type="file">Arquivo APK</button>
                     </div>
                     
-                    <!-- Campo para URL -->
                     <div id="url-field">
                         <input type="url" id="download-url" placeholder="https://exemplo.com/download" required>
                     </div>
                     
-                    <!-- Campo para upload de arquivo -->
                     <div id="file-field" class="hidden">
                         <div class="file-upload-container">
                             <input type="file" id="file-upload" accept=".apk,.apks" class="hidden">
@@ -450,7 +434,7 @@
                             <div id="progress-bar" class="progress-bar"></div>
                         </div>
                         <small style="color: #718096; font-size: 0.8rem;">
-                            ✅ Agora aceita APKs de qualquer tamanho! Os arquivos são salvos no navegador.
+                            ✅ Aceita APKs de qualquer tamanho! Salvos no navegador.
                         </small>
                     </div>
                     
@@ -487,7 +471,7 @@
                             <div id="edit-progress-bar" class="progress-bar"></div>
                         </div>
                         <small style="color: #718096; font-size: 0.8rem;">
-                            ✅ Agora aceita APKs de qualquer tamanho! Os arquivos são salvos no navegador.
+                            ✅ Aceita APKs de qualquer tamanho! Salvos no navegador.
                         </small>
                     </div>
                     
@@ -502,7 +486,6 @@
             <button id="add-item-btn" class="btn btn-primary">Adicionar Novo Item</button>
         </section>
 
-        <!-- Conteúdo Principal -->
         <main id="main-content">
             <header class="hero">
                 <h1>Executores e Scripts</h1>
@@ -510,13 +493,11 @@
                 <button id="logout-btn" class="btn btn-outline hidden">Sair do Admin</button>
             </header>
 
-            <!-- Seção de Executores -->
             <section id="executors" class="section">
                 <h2>Executores Disponíveis</h2>
                 <div id="executors-grid" class="grid"></div>
             </section>
 
-            <!-- Seção de Scripts -->
             <section id="scripts" class="section">
                 <h2>Scripts Disponíveis</h2>
                 <div id="scripts-grid" class="grid"></div>
@@ -524,15 +505,14 @@
         </main>
     </div>
 
-    <!-- BOTÃO DE LOGOUT ADMIN (fixo) -->
     <button id="logout-admin" class="logout-admin-btn btn btn-danger hidden">Sair</button>
 
     <script>
-    // ================= CONFIGURAÇÃO =================
+    // Configuração
     const SECRET_CODE = "admin123";
-    let currentUploadType = 'url'; // 'url' ou 'file'
+    let currentUploadType = 'url';
 
-    // ================= ELEMENTOS =================
+    // Elementos
     const authSection = document.getElementById('auth');
     const uploadSection = document.getElementById('upload');
     const authForm = document.getElementById('auth-form');
@@ -550,7 +530,7 @@
     const cancelEditBtn = document.getElementById('cancel-edit-btn');
     const addItemBtn = document.getElementById('add-item-btn');
 
-    // Elementos de upload de arquivo
+    // Elementos de upload
     const fileUpload = document.getElementById('file-upload');
     const fileSelectBtn = document.getElementById('file-select-btn');
     const fileName = document.getElementById('file-name');
@@ -560,7 +540,7 @@
     const progressContainer = document.getElementById('progress-container');
     const progressBar = document.getElementById('progress-bar');
 
-    // Elementos de edição de arquivo
+    // Elementos de edição
     const editFileUpload = document.getElementById('edit-file-upload');
     const editFileSelectBtn = document.getElementById('edit-file-select-btn');
     const editFileName = document.getElementById('edit-file-name');
@@ -570,15 +550,14 @@
     const editProgressContainer = document.getElementById('edit-progress-container');
     const editProgressBar = document.getElementById('edit-progress-bar');
 
-    // ================= ARMAZENAMENTO =================
+    // Armazenamento
     let publishedItems = JSON.parse(localStorage.getItem('publishedItems')) || [];
     let fileStorage = JSON.parse(localStorage.getItem('fileStorage')) || {};
 
-    // ================= FUNÇÕES DE UPLOAD =================
+    // Funções de Upload
     function setUploadType(type) {
         currentUploadType = type;
         
-        // Atualizar botões
         uploadTypeBtns.forEach(btn => {
             btn.classList.toggle('active', btn.dataset.type === type);
         });
@@ -587,7 +566,6 @@
             btn.classList.toggle('active', btn.dataset.type === type);
         });
         
-        // Mostrar/ocultar campos
         if (type === 'url') {
             urlField.classList.remove('hidden');
             fileField.classList.add('hidden');
@@ -606,7 +584,6 @@
             const file = fileInput.files[0];
             fileNameElement.textContent = `${file.name} (${formatFileSize(file.size)})`;
             
-            // Validar se é um arquivo APK
             if (!file.name.toLowerCase().endsWith('.apk') && !file.name.toLowerCase().endsWith('.apks')) {
                 showAlert('Por favor, selecione um arquivo APK válido.', true);
                 fileInput.value = '';
@@ -614,9 +591,7 @@
                 return false;
             }
             
-            // REMOVIDA A VALIDAÇÃO DE TAMANHO - AGORA ACEITA QUALQUER TAMANHO
             console.log(`Arquivo selecionado: ${file.name} - Tamanho: ${formatFileSize(file.size)}`);
-            
             return true;
         }
         return false;
@@ -626,7 +601,6 @@
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             
-            // Mostrar progresso se houver elemento de progresso
             if (progressContainerElement) {
                 progressContainerElement.style.display = 'block';
             }
@@ -645,18 +619,16 @@
                         name: file.name,
                         type: file.type,
                         size: file.size,
-                        data: e.target.result,
+                        data: Array.from(new Uint8Array(e.target.result)),
                         uploadDate: new Date().toISOString()
                     };
                     
                     fileStorage[fileId] = fileData;
                     localStorage.setItem('fileStorage', JSON.stringify(fileStorage));
                     
-                    // Criar URL para download a partir dos dados
                     const blob = new Blob([new Uint8Array(e.target.result)], { type: file.type });
                     const downloadUrl = URL.createObjectURL(blob);
                     
-                    // Esconder barra de progresso
                     if (progressContainerElement) {
                         progressContainerElement.style.display = 'none';
                         progressBarElement.style.width = '0%';
@@ -664,7 +636,6 @@
                     
                     resolve({ fileId, downloadUrl, fileName: file.name });
                 } catch (error) {
-                    // Esconder barra de progresso em caso de erro
                     if (progressContainerElement) {
                         progressContainerElement.style.display = 'none';
                         progressBarElement.style.width = '0%';
@@ -674,7 +645,6 @@
             };
             
             reader.onerror = () => {
-                // Esconder barra de progresso em caso de erro
                 if (progressContainerElement) {
                     progressContainerElement.style.display = 'none';
                     progressBarElement.style.width = '0%';
@@ -686,25 +656,7 @@
         });
     }
 
-    function cleanupFileStorage() {
-        // Limpar arquivos que não estão mais sendo usados
-        const usedFileIds = new Set();
-        publishedItems.forEach(item => {
-            if (item.fileId) {
-                usedFileIds.add(item.fileId);
-            }
-        });
-
-        Object.keys(fileStorage).forEach(fileId => {
-            if (!usedFileIds.has(fileId)) {
-                delete fileStorage[fileId];
-            }
-        });
-
-        localStorage.setItem('fileStorage', JSON.stringify(fileStorage));
-    }
-
-    // ================= FUNÇÕES PRINCIPAIS =================
+    // Funções Principais
     function saveItems() { 
         localStorage.setItem('publishedItems', JSON.stringify(publishedItems)); 
     }
@@ -763,7 +715,6 @@
             </div>
         ` : '';
 
-        // Informações do arquivo
         const fileInfo = item.fileSize ? `
             <div style="font-size: 0.8rem; color: #718096; margin-top: 5px;">
                 <div>Tamanho: ${formatFileSize(item.fileSize)}</div>
@@ -806,7 +757,6 @@
     function deleteItem(id) {
         if (confirm('Tem certeza que deseja excluir este item?')) {
             const item = publishedItems.find(i => i.id === id);
-            // Liberar URL do blob se for um arquivo
             if (item && item.fileId) {
                 if (fileStorage[item.fileId]) {
                     delete fileStorage[item.fileId];
@@ -830,7 +780,6 @@
         document.getElementById('edit-description').value = item.description;
         document.getElementById('edit-type').value = item.type;
 
-        // Definir tipo de upload baseado no item
         if (item.fileId) {
             setUploadType('file');
             editFileName.textContent = `${item.fileName} (${formatFileSize(item.fileSize)})`;
@@ -850,7 +799,7 @@
         editFormContainer.classList.add('hidden');
         uploadFormContainer.classList.remove('hidden');
         editForm.reset();
-        setUploadType('url'); // Reset para URL por padrão
+        setUploadType('url');
     }
 
     function showAlert(msg, error = false) {
@@ -867,9 +816,8 @@
         displayPublishedItems();
     }
 
-    // ================= EVENT LISTENERS =================
+    // Event Listeners
     function initializeEventListeners() {
-        // Eventos de tipo de upload
         uploadTypeBtns.forEach(btn => {
             btn.addEventListener('click', () => setUploadType(btn.dataset.type));
         });
@@ -878,14 +826,12 @@
             btn.addEventListener('click', () => setUploadType(btn.dataset.type));
         });
 
-        // Eventos de seleção de arquivo
         fileSelectBtn.addEventListener('click', () => fileUpload.click());
         fileUpload.addEventListener('change', () => handleFileSelect(fileUpload, fileName));
 
         editFileSelectBtn.addEventListener('click', () => editFileUpload.click());
         editFileUpload.addEventListener('change', () => handleFileSelect(editFileUpload, editFileName));
 
-        // Autenticação
         if (authForm) {
             authForm.addEventListener('submit', e => {
                 e.preventDefault();
@@ -902,7 +848,6 @@
             });
         }
 
-        // Logout
         if (logoutBtn) {
             logoutBtn.addEventListener('click', e => { 
                 e.preventDefault(); 
@@ -914,7 +859,6 @@
             logoutAdminBtn.addEventListener('click', handleLogout);
         }
 
-        // Upload de conteúdo
         if (uploadForm) {
             uploadForm.addEventListener('submit', async e => {
                 e.preventDefault();
@@ -975,12 +919,11 @@
                 displayPublishedItems();
                 uploadForm.reset();
                 fileName.textContent = 'Nenhum arquivo selecionado';
-                setUploadType('url'); // Reset para URL
+                setUploadType('url');
                 showAlert('Conteúdo publicado com sucesso!');
             });
         }
 
-        // Edição de conteúdo
         if (editForm) {
             editForm.addEventListener('submit', async e => {
                 e.preventDefault();
@@ -993,7 +936,6 @@
                 item.type = document.getElementById('edit-type').value;
 
                 if (currentUploadType === 'url') {
-                    // Se estava usando arquivo e mudou para URL, limpar dados do arquivo
                     if (item.fileId) {
                         delete fileStorage[item.fileId];
                         item.fileId = null;
@@ -1012,7 +954,6 @@
                             const file = editFileUpload.files[0];
                             const result = await saveFileToStorage(file, editProgressBar, editProgressContainer);
                             
-                            // Liberar arquivo anterior se existir
                             if (item.fileId && fileStorage[item.fileId]) {
                                 delete fileStorage[item.fileId];
                             }
@@ -1026,7 +967,6 @@
                             return;
                         }
                     }
-                    // Se não selecionou novo arquivo, mantém os dados atuais
                 }
 
                 item.downloadType = currentUploadType;
@@ -1040,7 +980,6 @@
             });
         }
 
-        // Botões de interface
         if (cancelEditBtn) {
             cancelEditBtn.addEventListener('click', cancelEdit);
         }
@@ -1052,7 +991,6 @@
             });
         }
 
-        // Scroll suave para âncoras
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -1065,15 +1003,12 @@
         });
     }
 
-    // ================= INICIALIZAÇÃO =================
+    // Inicialização
     document.addEventListener('DOMContentLoaded', () => {
-        // Limpar storage de arquivos não utilizados
-        cleanupFileStorage();
-        
         checkAuthStatus();
         displayPublishedItems();
         initializeEventListeners();
-        setUploadType('url'); // Definir URL como padrão
+        setUploadType('url');
     });
     </script>
 </body>
