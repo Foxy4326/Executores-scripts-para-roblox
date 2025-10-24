@@ -346,6 +346,23 @@
             z-index: 1000;
         }
         
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            background: #e2e8f0;
+            border-radius: 10px;
+            margin: 10px 0;
+            display: none;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background: #48bb78;
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
         /* Responsivo */
         @media (max-width: 768px) {
             .container {
@@ -429,8 +446,11 @@
                             <button type="button" id="file-select-btn" class="file-upload-btn">Selecionar APK</button>
                             <span id="file-name" class="file-name">Nenhum arquivo selecionado</span>
                         </div>
+                        <div id="progress-container" class="progress-container">
+                            <div id="progress-bar" class="progress-bar"></div>
+                        </div>
                         <small style="color: #718096; font-size: 0.8rem;">
-                            ⚠️ Arquivos APK são salvos apenas no navegador atual
+                            ✅ Agora aceita APKs de qualquer tamanho! Os arquivos são salvos no navegador.
                         </small>
                     </div>
                     
@@ -463,8 +483,11 @@
                             <button type="button" id="edit-file-select-btn" class="file-upload-btn">Selecionar APK</button>
                             <span id="edit-file-name" class="file-name">Nenhum arquivo selecionado</span>
                         </div>
+                        <div id="edit-progress-container" class="progress-container">
+                            <div id="edit-progress-bar" class="progress-bar"></div>
+                        </div>
                         <small style="color: #718096; font-size: 0.8rem;">
-                            ⚠️ Arquivos APK são salvos apenas no navegador atual
+                            ✅ Agora aceita APKs de qualquer tamanho! Os arquivos são salvos no navegador.
                         </small>
                     </div>
                     
@@ -534,6 +557,8 @@
     const urlField = document.getElementById('url-field');
     const fileField = document.getElementById('file-field');
     const uploadTypeBtns = document.querySelectorAll('.upload-type-btn');
+    const progressContainer = document.getElementById('progress-container');
+    const progressBar = document.getElementById('progress-bar');
 
     // Elementos de edição de arquivo
     const editFileUpload = document.getElementById('edit-file-upload');
@@ -542,6 +567,8 @@
     const editUrlField = document.getElementById('edit-url-field');
     const editFileField = document.getElementById('edit-file-field');
     const editUploadTypeBtns = document.querySelectorAll('#edit-form-container .upload-type-btn');
+    const editProgressContainer = document.getElementById('edit-progress-container');
+    const editProgressBar = document.getElementById('edit-progress-bar');
 
     // ================= ARMAZENAMENTO =================
     let publishedItems = JSON.parse(localStorage.getItem('publishedItems')) || [];
@@ -577,7 +604,7 @@
     function handleFileSelect(fileInput, fileNameElement) {
         if (fileInput.files.length > 0) {
             const file = fileInput.files[0];
-            fileNameElement.textContent = file.name;
+            fileNameElement.textContent = `${file.name} (${formatFileSize(file.size)})`;
             
             // Validar se é um arquivo APK
             if (!file.name.toLowerCase().endsWith('.apk') && !file.name.toLowerCase().endsWith('.apks')) {
@@ -587,22 +614,30 @@
                 return false;
             }
             
-            // Validar tamanho do arquivo (máximo 100MB)
-            if (file.size > 100 * 1024 * 1024) {
-                showAlert('O arquivo é muito grande. Tamanho máximo: 100MB', true);
-                fileInput.value = '';
-                fileNameElement.textContent = 'Nenhum arquivo selecionado';
-                return false;
-            }
+            // REMOVIDA A VALIDAÇÃO DE TAMANHO - AGORA ACEITA QUALQUER TAMANHO
+            console.log(`Arquivo selecionado: ${file.name} - Tamanho: ${formatFileSize(file.size)}`);
             
             return true;
         }
         return false;
     }
 
-    function saveFileToStorage(file) {
+    function saveFileToStorage(file, progressBarElement = null, progressContainerElement = null) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
+            
+            // Mostrar progresso se houver elemento de progresso
+            if (progressContainerElement) {
+                progressContainerElement.style.display = 'block';
+            }
+            
+            reader.onprogress = function(e) {
+                if (e.lengthComputable && progressBarElement) {
+                    const percentComplete = (e.loaded / e.total) * 100;
+                    progressBarElement.style.width = percentComplete + '%';
+                }
+            };
+            
             reader.onload = function(e) {
                 try {
                     const fileId = 'file_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
@@ -617,15 +652,36 @@
                     fileStorage[fileId] = fileData;
                     localStorage.setItem('fileStorage', JSON.stringify(fileStorage));
                     
-                    // Criar URL para download
-                    const blob = new Blob([file], { type: file.type });
+                    // Criar URL para download a partir dos dados
+                    const blob = new Blob([new Uint8Array(e.target.result)], { type: file.type });
                     const downloadUrl = URL.createObjectURL(blob);
+                    
+                    // Esconder barra de progresso
+                    if (progressContainerElement) {
+                        progressContainerElement.style.display = 'none';
+                        progressBarElement.style.width = '0%';
+                    }
+                    
                     resolve({ fileId, downloadUrl, fileName: file.name });
                 } catch (error) {
+                    // Esconder barra de progresso em caso de erro
+                    if (progressContainerElement) {
+                        progressContainerElement.style.display = 'none';
+                        progressBarElement.style.width = '0%';
+                    }
                     reject(error);
                 }
             };
-            reader.onerror = () => reject(new Error('Erro ao ler o arquivo'));
+            
+            reader.onerror = () => {
+                // Esconder barra de progresso em caso de erro
+                if (progressContainerElement) {
+                    progressContainerElement.style.display = 'none';
+                    progressBarElement.style.width = '0%';
+                }
+                reject(new Error('Erro ao ler o arquivo'));
+            };
+            
             reader.readAsArrayBuffer(file);
         });
     }
@@ -707,8 +763,14 @@
             </div>
         ` : '';
 
-        // Se for um arquivo, adicionar informação do tamanho
-        const fileInfo = item.fileSize ? `<div class="file-size" style="font-size: 0.8rem; color: #718096; margin-top: 5px;">Tamanho: ${formatFileSize(item.fileSize)}</div>` : '';
+        // Informações do arquivo
+        const fileInfo = item.fileSize ? `
+            <div style="font-size: 0.8rem; color: #718096; margin-top: 5px;">
+                <div>Tamanho: ${formatFileSize(item.fileSize)}</div>
+                <div>Nome: ${item.fileName}</div>
+                ${item.downloadType === 'file' ? '<div>💾 Salvo localmente</div>' : ''}
+            </div>
+        ` : '';
 
         card.innerHTML = `
             <div class="card-header"><h3>${item.title}</h3></div>
@@ -717,7 +779,7 @@
                 <p class="date">${dateText}</p>
                 ${fileInfo}
                 <a href="${item.downloadUrl}" target="_blank" class="btn download-btn" download="${item.fileName || 'download'}">
-                    ${item.type === 'executor' ? 'Baixar APK' : 'Baixar Script'}
+                    ${item.type === 'executor' ? '📱 Baixar APK' : '📜 Baixar Script'}
                 </a>
                 ${adminButtons}
             </div>
@@ -771,7 +833,7 @@
         // Definir tipo de upload baseado no item
         if (item.fileId) {
             setUploadType('file');
-            editFileName.textContent = item.fileName || 'Arquivo carregado';
+            editFileName.textContent = `${item.fileName} (${formatFileSize(item.fileSize)})`;
             document.getElementById('edit-download-url').value = '';
         } else {
             setUploadType('url');
@@ -883,9 +945,9 @@
                     }
 
                     try {
-                        showAlert('Salvando arquivo...', false);
+                        showAlert('Salvando arquivo... Isso pode demorar para arquivos grandes.', false);
                         const file = fileUpload.files[0];
-                        const result = await saveFileToStorage(file);
+                        const result = await saveFileToStorage(file, progressBar, progressContainer);
                         downloadUrl = result.downloadUrl;
                         fileId = result.fileId;
                         fileNameText = result.fileName;
@@ -946,9 +1008,9 @@
                 } else {
                     if (editFileUpload.files.length > 0) {
                         try {
-                            showAlert('Salvando novo arquivo...', false);
+                            showAlert('Salvando novo arquivo... Isso pode demorar para arquivos grandes.', false);
                             const file = editFileUpload.files[0];
-                            const result = await saveFileToStorage(file);
+                            const result = await saveFileToStorage(file, editProgressBar, editProgressContainer);
                             
                             // Liberar arquivo anterior se existir
                             if (item.fileId && fileStorage[item.fileId]) {
