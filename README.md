@@ -5,388 +5,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Executores e Scripts</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        .hidden {
-            display: none !important;
-        }
-        
-        .hero {
-            text-align: center;
-            padding: 60px 20px;
-            color: white;
-        }
-        
-        .hero h1 {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-        
-        .hero p {
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
-            opacity: 0.9;
-        }
-        
-        .section {
-            background: white;
-            margin: 30px 0;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-        
-        .section h2 {
-            color: #4a5568;
-            margin-bottom: 30px;
-            font-size: 2rem;
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 10px;
-        }
-        
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
-            margin-top: 20px;
-        }
-        
-        .card {
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 12px;
-            padding: 25px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
-        
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        }
-        
-        .card-header h3 {
-            color: #2d3748;
-            margin-bottom: 15px;
-            font-size: 1.3rem;
-        }
-        
-        .card-body p {
-            color: #4a5568;
-            margin-bottom: 15px;
-            line-height: 1.5;
-        }
-        
-        .date {
-            color: #718096;
-            font-size: 0.9rem;
-            font-style: italic;
-        }
-        
-        .card-actions {
-            margin-top: 20px;
-            display: flex;
-            gap: 10px;
-        }
-        
-        .auth-section {
-            background: white;
-            margin: 50px auto;
-            padding: 50px;
-            border-radius: 15px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            max-width: 400px;
-            text-align: center;
-        }
-        
-        .auth-section h1 {
-            color: #4a5568;
-            margin-bottom: 30px;
-        }
-        
-        .auth-form {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        
-        .upload-section {
-            background: white;
-            margin: 30px 0;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-        
-        .upload-form {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            max-width: 600px;
-        }
-        
-        .form-actions {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-        
-        input, textarea, select {
-            padding: 15px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
-        }
-        
-        input:focus, textarea:focus, select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        
-        textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-        
-        .file-upload-container {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        
-        .file-upload-btn {
-            background: #4299e1;
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-        
-        .file-upload-btn:hover {
-            background: #3182ce;
-        }
-        
-        .file-name {
-            color: #718096;
-            font-size: 0.9rem;
-        }
-        
-        .upload-type-selector {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 10px;
-        }
-        
-        .upload-type-btn {
-            flex: 1;
-            padding: 12px;
-            border: 2px solid #e2e8f0;
-            background: white;
-            border-radius: 8px;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-        
-        .upload-type-btn.active {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
-        }
-        
-        .btn {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-            text-align: center;
-        }
-        
-        .btn-primary {
-            background: #667eea;
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #5a6fd8;
-            transform: translateY(-2px);
-        }
-        
-        .btn-success {
-            background: #48bb78;
-            color: white;
-        }
-        
-        .btn-success:hover {
-            background: #3fa76c;
-            transform: translateY(-2px);
-        }
-        
-        .btn-warning {
-            background: #ed8936;
-            color: white;
-        }
-        
-        .btn-warning:hover {
-            background: #e37820;
-        }
-        
-        .btn-danger {
-            background: #f56565;
-            color: white;
-        }
-        
-        .btn-danger:hover {
-            background: #e53e3e;
-        }
-        
-        .btn-secondary {
-            background: #a0aec0;
-            color: white;
-        }
-        
-        .btn-secondary:hover {
-            background: #9099a6;
-        }
-        
-        .btn-outline {
-            background: transparent;
-            color: white;
-            border: 2px solid white;
-        }
-        
-        .btn-outline:hover {
-            background: white;
-            color: #667eea;
-        }
-        
-        .btn-small {
-            padding: 8px 15px;
-            font-size: 0.9rem;
-        }
-        
-        .download-btn {
-            background: #4299e1;
-            color: white;
-            width: 100%;
-            margin-top: 10px;
-        }
-        
-        .download-btn:hover {
-            background: #3182ce;
-        }
-        
-        .alert {
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 0;
-            font-weight: 500;
-        }
-        
-        .alert-error {
-            background: #fed7d7;
-            color: #c53030;
-            border: 1px solid #feb2b2;
-        }
-        
-        .alert-success {
-            background: #c6f6d5;
-            color: #276749;
-            border: 1px solid #9ae6b4;
-        }
-        
-        .empty-message {
-            text-align: center;
-            color: #718096;
-            font-style: italic;
-            padding: 40px;
-            grid-column: 1 / -1;
-        }
-        
-        .logout-admin-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-        }
-        
-        .progress-container {
-            width: 100%;
-            background: #e2e8f0;
-            border-radius: 10px;
-            margin: 10px 0;
-            display: none;
-        }
-        
-        .progress-bar {
-            height: 20px;
-            background: #48bb78;
-            border-radius: 10px;
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; line-height: 1.6; color: #333; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .hidden { display: none !important; }
+        .hero { text-align: center; padding: 60px 20px; color: white; }
+        .hero h1 { font-size: 3rem; margin-bottom: 1rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .hero p { font-size: 1.2rem; margin-bottom: 2rem; opacity: 0.9; }
+        .section { background: white; margin: 30px 0; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .section h2 { color: #4a5568; margin-bottom: 30px; font-size: 2rem; border-bottom: 3px solid #667eea; padding-bottom: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; margin-top: 20px; }
+        .card { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 12px; padding: 25px; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+        .card-header h3 { color: #2d3748; margin-bottom: 15px; font-size: 1.3rem; }
+        .card-body p { color: #4a5568; margin-bottom: 15px; line-height: 1.5; }
+        .date { color: #718096; font-size: 0.9rem; font-style: italic; }
+        .card-actions { margin-top: 20px; display: flex; gap: 10px; }
+        .auth-section { background: white; margin: 50px auto; padding: 50px; border-radius: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); max-width: 400px; text-align: center; }
+        .auth-section h1 { color: #4a5568; margin-bottom: 30px; }
+        .auth-form, .upload-form { display: flex; flex-direction: column; gap: 20px; }
+        .upload-section { background: white; margin: 30px 0; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .upload-form { max-width: 600px; }
+        .form-actions { display: flex; gap: 15px; flex-wrap: wrap; }
+        input, textarea, select { padding: 15px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s ease; }
+        input:focus, textarea:focus, select:focus { outline: none; border-color: #667eea; }
+        textarea { min-height: 100px; resize: vertical; }
+        .file-upload-container { display: flex; gap: 10px; align-items: center; }
+        .file-upload-btn { background: #4299e1; color: white; padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
+        .file-upload-btn:hover { background: #3182ce; }
+        .file-name { color: #718096; font-size: 0.9rem; }
+        .upload-type-selector { display: flex; gap: 15px; margin-bottom: 10px; }
+        .upload-type-btn { flex: 1; padding: 12px; border: 2px solid #e2e8f0; background: white; border-radius: 8px; cursor: pointer; text-align: center; transition: all 0.3s ease; }
+        .upload-type-btn.active { background: #667eea; color: white; border-color: #667eea; }
+        .btn { padding: 12px 25px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-decoration: none; display: inline-block; text-align: center; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5a6fd8; transform: translateY(-2px); }
+        .btn-success { background: #48bb78; color: white; }
+        .btn-success:hover { background: #3fa76c; transform: translateY(-2px); }
+        .btn-warning { background: #ed8936; color: white; }
+        .btn-warning:hover { background: #e37820; }
+        .btn-danger { background: #f56565; color: white; }
+        .btn-danger:hover { background: #e53e3e; }
+        .btn-secondary { background: #a0aec0; color: white; }
+        .btn-secondary:hover { background: #9099a6; }
+        .btn-outline { background: transparent; color: white; border: 2px solid white; }
+        .btn-outline:hover { background: white; color: #667eea; }
+        .btn-small { padding: 8px 15px; font-size: 0.9rem; }
+        .download-btn { background: #4299e1; color: white; width: 100%; margin-top: 10px; }
+        .download-btn:hover { background: #3182ce; }
+        .alert { padding: 15px; border-radius: 8px; margin: 20px 0; font-weight: 500; }
+        .alert-error { background: #fed7d7; color: #c53030; border: 1px solid #feb2b2; }
+        .alert-success { background: #c6f6d5; color: #276749; border: 1px solid #9ae6b4; }
+        .empty-message { text-align: center; color: #718096; font-style: italic; padding: 40px; grid-column: 1 / -1; }
+        .logout-admin-btn { position: fixed; top: 20px; right: 20px; z-index: 1000; }
+        .progress-container { width: 100%; background: #e2e8f0; border-radius: 10px; margin: 10px 0; display: none; }
+        .progress-bar { height: 20px; background: #48bb78; border-radius: 10px; width: 0%; transition: width 0.3s ease; }
         @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-            
-            .hero h1 {
-                font-size: 2rem;
-            }
-            
-            .section {
-                padding: 25px;
-                margin: 20px 0;
-            }
-            
-            .grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .auth-section {
-                margin: 20px;
-                padding: 30px;
-            }
-            
-            .upload-section {
-                padding: 25px;
-            }
-            
-            .form-actions {
-                flex-direction: column;
-            }
-            
-            .upload-type-selector {
-                flex-direction: column;
-            }
+            .container { padding: 10px; }
+            .hero h1 { font-size: 2rem; }
+            .section { padding: 25px; margin: 20px 0; }
+            .grid { grid-template-columns: 1fr; }
+            .auth-section { margin: 20px; padding: 30px; }
+            .upload-section { padding: 25px; }
+            .form-actions, .upload-type-selector { flex-direction: column; }
         }
     </style>
 </head>
@@ -557,14 +238,8 @@
     // Funções de Upload
     function setUploadType(type) {
         currentUploadType = type;
-        
-        uploadTypeBtns.forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.type === type);
-        });
-        
-        editUploadTypeBtns.forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.type === type);
-        });
+        uploadTypeBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.type === type));
+        editUploadTypeBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.type === type));
         
         if (type === 'url') {
             urlField.classList.remove('hidden');
@@ -590,8 +265,6 @@
                 fileNameElement.textContent = 'Nenhum arquivo selecionado';
                 return false;
             }
-            
-            console.log(`Arquivo selecionado: ${file.name} - Tamanho: ${formatFileSize(file.size)}`);
             return true;
         }
         return false;
@@ -601,29 +274,24 @@
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             
-            if (progressContainerElement) {
-                progressContainerElement.style.display = 'block';
-            }
+            if (progressContainerElement) progressContainerElement.style.display = 'block';
             
             reader.onprogress = function(e) {
                 if (e.lengthComputable && progressBarElement) {
-                    const percentComplete = (e.loaded / e.total) * 100;
-                    progressBarElement.style.width = percentComplete + '%';
+                    progressBarElement.style.width = (e.loaded / e.total) * 100 + '%';
                 }
             };
             
             reader.onload = function(e) {
                 try {
                     const fileId = 'file_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                    const fileData = {
+                    fileStorage[fileId] = {
                         name: file.name,
                         type: file.type,
                         size: file.size,
                         data: Array.from(new Uint8Array(e.target.result)),
                         uploadDate: new Date().toISOString()
                     };
-                    
-                    fileStorage[fileId] = fileData;
                     localStorage.setItem('fileStorage', JSON.stringify(fileStorage));
                     
                     const blob = new Blob([new Uint8Array(e.target.result)], { type: file.type });
@@ -662,44 +330,37 @@
     }
 
     function checkAuthStatus() {
-        const isAuthenticated = localStorage.getItem('authenticated') === 'true';
-        if (isAuthenticated) showUploadSection();
+        if (localStorage.getItem('authenticated') === 'true') showUploadSection();
     }
 
     function showUploadSection() {
-        if (authSection) authSection.classList.add('hidden');
-        if (uploadSection) uploadSection.classList.remove('hidden');
-        if (logoutBtn) logoutBtn.classList.remove('hidden');
-        if (logoutAdminBtn) logoutAdminBtn.classList.remove('hidden');
+        authSection.classList.add('hidden');
+        uploadSection.classList.remove('hidden');
+        logoutBtn.classList.remove('hidden');
+        logoutAdminBtn.classList.remove('hidden');
     }
 
     function hideUploadSection() {
-        if (authSection) authSection.classList.remove('hidden');
-        if (uploadSection) uploadSection.classList.add('hidden');
-        if (logoutBtn) logoutBtn.classList.add('hidden');
-        if (logoutAdminBtn) logoutAdminBtn.classList.add('hidden');
+        authSection.classList.remove('hidden');
+        uploadSection.classList.add('hidden');
+        logoutBtn.classList.add('hidden');
+        logoutAdminBtn.classList.add('hidden');
         localStorage.removeItem('authenticated');
     }
 
     function displayPublishedItems() {
-        if (executorsGrid) {
-            executorsGrid.innerHTML = '';
-            const executors = publishedItems.filter(i => i.type === 'executor');
-            if (executors.length) {
-                executors.forEach(i => executorsGrid.appendChild(createCard(i)));
-            } else {
-                executorsGrid.innerHTML = '<div class="empty-message">Nenhum executor publicado ainda.</div>';
-            }
-        }
+        displayItemsInGrid(executorsGrid, 'executor');
+        displayItemsInGrid(scriptsGrid, 'script');
+    }
 
-        if (scriptsGrid) {
-            scriptsGrid.innerHTML = '';
-            const scripts = publishedItems.filter(i => i.type === 'script');
-            if (scripts.length) {
-                scripts.forEach(i => scriptsGrid.appendChild(createCard(i)));
-            } else {
-                scriptsGrid.innerHTML = '<div class="empty-message">Nenhum script publicado ainda.</div>';
-            }
+    function displayItemsInGrid(gridElement, type) {
+        if (!gridElement) return;
+        gridElement.innerHTML = '';
+        const items = publishedItems.filter(i => i.type === type);
+        if (items.length) {
+            items.forEach(i => gridElement.appendChild(createCard(i)));
+        } else {
+            gridElement.innerHTML = `<div class="empty-message">Nenhum ${type} publicado ainda.</div>`;
         }
     }
 
@@ -737,10 +398,8 @@
         `;
 
         if (localStorage.getItem('authenticated') === 'true') {
-            const editBtn = card.querySelector('.edit-btn');
-            const deleteBtn = card.querySelector('.delete-btn');
-            if (editBtn) editBtn.addEventListener('click', () => showEditForm(item.id));
-            if (deleteBtn) deleteBtn.addEventListener('click', () => deleteItem(item.id));
+            card.querySelector('.edit-btn')?.addEventListener('click', () => showEditForm(item.id));
+            card.querySelector('.delete-btn')?.addEventListener('click', () => deleteItem(item.id));
         }
         
         return card;
@@ -757,12 +416,9 @@
     function deleteItem(id) {
         if (confirm('Tem certeza que deseja excluir este item?')) {
             const item = publishedItems.find(i => i.id === id);
-            if (item && item.fileId) {
-                if (fileStorage[item.fileId]) {
-                    delete fileStorage[item.fileId];
-                }
+            if (item?.fileId && fileStorage[item.fileId]) {
+                delete fileStorage[item.fileId];
             }
-            
             publishedItems = publishedItems.filter(i => i.id !== id);
             saveItems();
             localStorage.setItem('fileStorage', JSON.stringify(fileStorage));
@@ -818,187 +474,140 @@
 
     // Event Listeners
     function initializeEventListeners() {
-        uploadTypeBtns.forEach(btn => {
-            btn.addEventListener('click', () => setUploadType(btn.dataset.type));
-        });
-
-        editUploadTypeBtns.forEach(btn => {
-            btn.addEventListener('click', () => setUploadType(btn.dataset.type));
-        });
+        uploadTypeBtns.forEach(btn => btn.addEventListener('click', () => setUploadType(btn.dataset.type)));
+        editUploadTypeBtns.forEach(btn => btn.addEventListener('click', () => setUploadType(btn.dataset.type)));
 
         fileSelectBtn.addEventListener('click', () => fileUpload.click());
         fileUpload.addEventListener('change', () => handleFileSelect(fileUpload, fileName));
-
         editFileSelectBtn.addEventListener('click', () => editFileUpload.click());
         editFileUpload.addEventListener('change', () => handleFileSelect(editFileUpload, editFileName));
 
-        if (authForm) {
-            authForm.addEventListener('submit', e => {
-                e.preventDefault();
-                if (accessCodeInput.value.trim() === SECRET_CODE) {
-                    localStorage.setItem('authenticated', 'true');
-                    showUploadSection();
-                    authMessage.classList.add('hidden');
-                    displayPublishedItems();
-                } else {
-                    authMessage.textContent = 'Código de acesso incorreto. Tente novamente.';
-                    authMessage.classList.remove('hidden');
-                    accessCodeInput.value = '';
+        authForm?.addEventListener('submit', e => {
+            e.preventDefault();
+            if (accessCodeInput.value.trim() === SECRET_CODE) {
+                localStorage.setItem('authenticated', 'true');
+                showUploadSection();
+                authMessage.classList.add('hidden');
+                displayPublishedItems();
+            } else {
+                authMessage.textContent = 'Código de acesso incorreto. Tente novamente.';
+                authMessage.classList.remove('hidden');
+                accessCodeInput.value = '';
+            }
+        });
+
+        logoutBtn?.addEventListener('click', e => { e.preventDefault(); handleLogout(); });
+        logoutAdminBtn?.addEventListener('click', handleLogout);
+
+        uploadForm?.addEventListener('submit', async e => {
+            e.preventDefault();
+            const title = document.getElementById('title').value.trim();
+            const description = document.getElementById('description').value.trim();
+            const type = document.getElementById('type').value;
+            
+            if (!title || !description || !type) { 
+                showAlert('Preencha todos os campos', true); 
+                return; 
+            }
+
+            let downloadUrl = '', fileId = null, fileNameText = '', fileSize = 0;
+
+            if (currentUploadType === 'url') {
+                downloadUrl = document.getElementById('download-url').value.trim();
+                if (!downloadUrl) {
+                    showAlert('Informe a URL de download', true);
+                    return;
                 }
-            });
-        }
-
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', e => { 
-                e.preventDefault(); 
-                handleLogout();
-            });
-        }
-
-        if (logoutAdminBtn) {
-            logoutAdminBtn.addEventListener('click', handleLogout);
-        }
-
-        if (uploadForm) {
-            uploadForm.addEventListener('submit', async e => {
-                e.preventDefault();
-                const title = document.getElementById('title').value.trim();
-                const description = document.getElementById('description').value.trim();
-                const type = document.getElementById('type').value;
-                
-                if (!title || !description || !type) { 
-                    showAlert('Preencha todos os campos', true); 
-                    return; 
+            } else {
+                if (!handleFileSelect(fileUpload, fileName)) {
+                    showAlert('Selecione um arquivo APK válido', true);
+                    return;
                 }
+                try {
+                    showAlert('Salvando arquivo... Isso pode demorar para arquivos grandes.', false);
+                    const file = fileUpload.files[0];
+                    const result = await saveFileToStorage(file, progressBar, progressContainer);
+                    downloadUrl = result.downloadUrl;
+                    fileId = result.fileId;
+                    fileNameText = result.fileName;
+                    fileSize = file.size;
+                } catch (error) {
+                    showAlert('Erro ao salvar o arquivo: ' + error.message, true);
+                    return;
+                }
+            }
 
-                let downloadUrl = '';
-                let fileId = null;
-                let fileNameText = '';
-                let fileSize = 0;
+            publishedItems.push({ 
+                id: Date.now(), title, description, type, downloadUrl, 
+                downloadType: currentUploadType, fileId, fileName: fileNameText, fileSize,
+                date: new Date().toLocaleDateString('pt-BR') 
+            });
+            saveItems();
+            displayPublishedItems();
+            uploadForm.reset();
+            fileName.textContent = 'Nenhum arquivo selecionado';
+            setUploadType('url');
+            showAlert('Conteúdo publicado com sucesso!');
+        });
 
-                if (currentUploadType === 'url') {
-                    downloadUrl = document.getElementById('download-url').value.trim();
-                    if (!downloadUrl) {
-                        showAlert('Informe a URL de download', true);
-                        return;
-                    }
-                } else {
-                    if (!handleFileSelect(fileUpload, fileName)) {
-                        showAlert('Selecione um arquivo APK válido', true);
-                        return;
-                    }
+        editForm?.addEventListener('submit', async e => {
+            e.preventDefault();
+            const id = parseInt(document.getElementById('edit-id').value);
+            const item = publishedItems.find(i => i.id === id);
+            if (!item) return;
 
+            item.title = document.getElementById('edit-title').value.trim();
+            item.description = document.getElementById('edit-description').value.trim();
+            item.type = document.getElementById('edit-type').value;
+
+            if (currentUploadType === 'url') {
+                if (item.fileId) {
+                    delete fileStorage[item.fileId];
+                    item.fileId = null; item.fileName = ''; item.fileSize = 0;
+                }
+                item.downloadUrl = document.getElementById('edit-download-url').value.trim();
+                if (!item.downloadUrl) {
+                    showAlert('Informe a URL de download', true);
+                    return;
+                }
+            } else {
+                if (editFileUpload.files.length > 0) {
                     try {
-                        showAlert('Salvando arquivo... Isso pode demorar para arquivos grandes.', false);
-                        const file = fileUpload.files[0];
-                        const result = await saveFileToStorage(file, progressBar, progressContainer);
-                        downloadUrl = result.downloadUrl;
-                        fileId = result.fileId;
-                        fileNameText = result.fileName;
-                        fileSize = file.size;
+                        showAlert('Salvando novo arquivo...', false);
+                        const file = editFileUpload.files[0];
+                        const result = await saveFileToStorage(file, editProgressBar, editProgressContainer);
+                        if (item.fileId && fileStorage[item.fileId]) delete fileStorage[item.fileId];
+                        item.downloadUrl = result.downloadUrl;
+                        item.fileId = result.fileId;
+                        item.fileName = result.fileName;
+                        item.fileSize = file.size;
                     } catch (error) {
                         showAlert('Erro ao salvar o arquivo: ' + error.message, true);
                         return;
                     }
                 }
+            }
 
-                const newItem = { 
-                    id: Date.now(), 
-                    title, 
-                    description, 
-                    type, 
-                    downloadUrl, 
-                    downloadType: currentUploadType,
-                    fileId,
-                    fileName: fileNameText,
-                    fileSize,
-                    date: new Date().toLocaleDateString('pt-BR') 
-                };
-                publishedItems.push(newItem);
-                saveItems();
-                displayPublishedItems();
-                uploadForm.reset();
-                fileName.textContent = 'Nenhum arquivo selecionado';
-                setUploadType('url');
-                showAlert('Conteúdo publicado com sucesso!');
-            });
-        }
+            item.downloadType = currentUploadType;
+            item.lastUpdate = new Date().toLocaleDateString('pt-BR');
+            saveItems();
+            localStorage.setItem('fileStorage', JSON.stringify(fileStorage));
+            displayPublishedItems();
+            cancelEdit();
+            showAlert('Conteúdo atualizado com sucesso!');
+        });
 
-        if (editForm) {
-            editForm.addEventListener('submit', async e => {
-                e.preventDefault();
-                const id = parseInt(document.getElementById('edit-id').value);
-                const item = publishedItems.find(i => i.id === id);
-                if (!item) return;
-
-                item.title = document.getElementById('edit-title').value.trim();
-                item.description = document.getElementById('edit-description').value.trim();
-                item.type = document.getElementById('edit-type').value;
-
-                if (currentUploadType === 'url') {
-                    if (item.fileId) {
-                        delete fileStorage[item.fileId];
-                        item.fileId = null;
-                        item.fileName = '';
-                        item.fileSize = 0;
-                    }
-                    item.downloadUrl = document.getElementById('edit-download-url').value.trim();
-                    if (!item.downloadUrl) {
-                        showAlert('Informe a URL de download', true);
-                        return;
-                    }
-                } else {
-                    if (editFileUpload.files.length > 0) {
-                        try {
-                            showAlert('Salvando novo arquivo... Isso pode demorar para arquivos grandes.', false);
-                            const file = editFileUpload.files[0];
-                            const result = await saveFileToStorage(file, editProgressBar, editProgressContainer);
-                            
-                            if (item.fileId && fileStorage[item.fileId]) {
-                                delete fileStorage[item.fileId];
-                            }
-                            
-                            item.downloadUrl = result.downloadUrl;
-                            item.fileId = result.fileId;
-                            item.fileName = result.fileName;
-                            item.fileSize = file.size;
-                        } catch (error) {
-                            showAlert('Erro ao salvar o arquivo: ' + error.message, true);
-                            return;
-                        }
-                    }
-                }
-
-                item.downloadType = currentUploadType;
-                item.lastUpdate = new Date().toLocaleDateString('pt-BR');
-
-                saveItems();
-                localStorage.setItem('fileStorage', JSON.stringify(fileStorage));
-                displayPublishedItems();
-                cancelEdit();
-                showAlert('Conteúdo atualizado com sucesso!');
-            });
-        }
-
-        if (cancelEditBtn) {
-            cancelEditBtn.addEventListener('click', cancelEdit);
-        }
-
-        if (addItemBtn) {
-            addItemBtn.addEventListener('click', () => {
-                cancelEdit();
-                uploadFormContainer.scrollIntoView({ behavior: 'smooth' });
-            });
-        }
+        cancelEditBtn?.addEventListener('click', cancelEdit);
+        addItemBtn?.addEventListener('click', () => {
+            cancelEdit();
+            uploadFormContainer.scrollIntoView({ behavior: 'smooth' });
+        });
 
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
-                const targetId = this.getAttribute('href');
-                const targetElement = document.querySelector(targetId);
-                if (targetElement) {
-                    targetElement.scrollIntoView({ behavior: 'smooth' });
-                }
+                const targetElement = document.querySelector(this.getAttribute('href'));
+                targetElement?.scrollIntoView({ behavior: 'smooth' });
             });
         });
     }
