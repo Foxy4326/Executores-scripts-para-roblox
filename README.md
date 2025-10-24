@@ -618,7 +618,8 @@
                     localStorage.setItem('fileStorage', JSON.stringify(fileStorage));
                     
                     // Criar URL para download
-                    const downloadUrl = URL.createObjectURL(file);
+                    const blob = new Blob([file], { type: file.type });
+                    const downloadUrl = URL.createObjectURL(blob);
                     resolve({ fileId, downloadUrl, fileName: file.name });
                 } catch (error) {
                     reject(error);
@@ -640,11 +641,6 @@
 
         Object.keys(fileStorage).forEach(fileId => {
             if (!usedFileIds.has(fileId)) {
-                // Liberar URL do blob
-                const fileData = fileStorage[fileId];
-                if (fileData.downloadUrl) {
-                    URL.revokeObjectURL(fileData.downloadUrl);
-                }
                 delete fileStorage[fileId];
             }
         });
@@ -681,15 +677,21 @@
         if (executorsGrid) {
             executorsGrid.innerHTML = '';
             const executors = publishedItems.filter(i => i.type === 'executor');
-            if (executors.length) executors.forEach(i => executorsGrid.appendChild(createCard(i)));
-            else executorsGrid.innerHTML = '<div class="empty-message">Nenhum executor publicado ainda.</div>';
+            if (executors.length) {
+                executors.forEach(i => executorsGrid.appendChild(createCard(i)));
+            } else {
+                executorsGrid.innerHTML = '<div class="empty-message">Nenhum executor publicado ainda.</div>';
+            }
         }
 
         if (scriptsGrid) {
             scriptsGrid.innerHTML = '';
             const scripts = publishedItems.filter(i => i.type === 'script');
-            if (scripts.length) scripts.forEach(i => scriptsGrid.appendChild(createCard(i)));
-            else scriptsGrid.innerHTML = '<div class="empty-message">Nenhum script publicado ainda.</div>';
+            if (scripts.length) {
+                scripts.forEach(i => scriptsGrid.appendChild(createCard(i)));
+            } else {
+                scriptsGrid.innerHTML = '<div class="empty-message">Nenhum script publicado ainda.</div>';
+            }
         }
     }
 
@@ -743,14 +745,15 @@
         if (confirm('Tem certeza que deseja excluir este item?')) {
             const item = publishedItems.find(i => i.id === id);
             // Liberar URL do blob se for um arquivo
-            if (item && item.fileId && fileStorage[item.fileId]) {
-                URL.revokeObjectURL(item.downloadUrl);
-                delete fileStorage[item.fileId];
-                localStorage.setItem('fileStorage', JSON.stringify(fileStorage));
+            if (item && item.fileId) {
+                if (fileStorage[item.fileId]) {
+                    delete fileStorage[item.fileId];
+                }
             }
             
             publishedItems = publishedItems.filter(i => i.id !== id);
             saveItems();
+            localStorage.setItem('fileStorage', JSON.stringify(fileStorage));
             displayPublishedItems();
             showAlert('Item excluído com sucesso.');
         }
@@ -864,7 +867,7 @@
 
                 let downloadUrl = '';
                 let fileId = null;
-                let fileName = '';
+                let fileNameText = '';
                 let fileSize = 0;
 
                 if (currentUploadType === 'url') {
@@ -885,7 +888,7 @@
                         const result = await saveFileToStorage(file);
                         downloadUrl = result.downloadUrl;
                         fileId = result.fileId;
-                        fileName = result.fileName;
+                        fileNameText = result.fileName;
                         fileSize = file.size;
                     } catch (error) {
                         showAlert('Erro ao salvar o arquivo: ' + error.message, true);
@@ -901,7 +904,7 @@
                     downloadUrl, 
                     downloadType: currentUploadType,
                     fileId,
-                    fileName,
+                    fileName: fileNameText,
                     fileSize,
                     date: new Date().toLocaleDateString('pt-BR') 
                 };
@@ -930,9 +933,7 @@
                 if (currentUploadType === 'url') {
                     // Se estava usando arquivo e mudou para URL, limpar dados do arquivo
                     if (item.fileId) {
-                        URL.revokeObjectURL(item.downloadUrl);
                         delete fileStorage[item.fileId];
-                        localStorage.setItem('fileStorage', JSON.stringify(fileStorage));
                         item.fileId = null;
                         item.fileName = '';
                         item.fileSize = 0;
@@ -951,7 +952,6 @@
                             
                             // Liberar arquivo anterior se existir
                             if (item.fileId && fileStorage[item.fileId]) {
-                                URL.revokeObjectURL(item.downloadUrl);
                                 delete fileStorage[item.fileId];
                             }
                             
