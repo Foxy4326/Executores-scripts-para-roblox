@@ -1,4 +1,4 @@
-<script>
+⁸<script>
 // ================= CONFIGURAÇÃO =================
 const SECRET_CODE = "admin123"; // Código secreto
 
