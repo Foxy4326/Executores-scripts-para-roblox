@@ -6,38 +6,38 @@
     <title>Executores e Scripts</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; line-height: 1.6; color: #333; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
         .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
         .hidden { display: none !important; }
         .hero { text-align: center; padding: 60px 20px; color: white; }
-        .hero h1 { font-size: 3rem; margin-bottom: 1rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .hero h1 { font-size: 2.5rem; margin-bottom: 1rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
         .hero p { font-size: 1.2rem; margin-bottom: 2rem; opacity: 0.9; }
-        .section { background: white; margin: 30px 0; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .section h2 { color: #4a5568; margin-bottom: 30px; font-size: 2rem; border-bottom: 3px solid #667eea; padding-bottom: 10px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; margin-top: 20px; }
-        .card { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 12px; padding: 25px; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .section { background: white; margin: 30px 0; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .section h2 { color: #4a5568; margin-bottom: 25px; font-size: 1.8rem; border-bottom: 3px solid #667eea; padding-bottom: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-top: 20px; }
+        .card { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 12px; padding: 20px; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
         .card-header h3 { color: #2d3748; margin-bottom: 15px; font-size: 1.3rem; }
         .card-body p { color: #4a5568; margin-bottom: 15px; line-height: 1.5; }
         .date { color: #718096; font-size: 0.9rem; font-style: italic; }
         .card-actions { margin-top: 20px; display: flex; gap: 10px; }
-        .auth-section { background: white; margin: 50px auto; padding: 50px; border-radius: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); max-width: 400px; text-align: center; }
-        .auth-section h1 { color: #4a5568; margin-bottom: 30px; }
-        .auth-form, .upload-form { display: flex; flex-direction: column; gap: 20px; }
-        .upload-section { background: white; margin: 30px 0; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .auth-section { background: white; margin: 50px auto; padding: 40px; border-radius: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); max-width: 400px; text-align: center; }
+        .auth-section h1 { color: #4a5568; margin-bottom: 25px; }
+        .auth-form, .upload-form { display: flex; flex-direction: column; gap: 15px; }
+        .upload-section { background: white; margin: 30px 0; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         .upload-form { max-width: 600px; }
-        .form-actions { display: flex; gap: 15px; flex-wrap: wrap; }
-        input, textarea, select { padding: 15px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s ease; }
+        .form-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+        input, textarea, select { padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s ease; width: 100%; }
         input:focus, textarea:focus, select:focus { outline: none; border-color: #667eea; }
         textarea { min-height: 100px; resize: vertical; }
-        .file-upload-container { display: flex; gap: 10px; align-items: center; }
-        .file-upload-btn { background: #4299e1; color: white; padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
+        .file-upload-container { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+        .file-upload-btn { background: #4299e1; color: white; padding: 10px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; }
         .file-upload-btn:hover { background: #3182ce; }
         .file-name { color: #718096; font-size: 0.9rem; }
-        .upload-type-selector { display: flex; gap: 15px; margin-bottom: 10px; }
-        .upload-type-btn { flex: 1; padding: 12px; border: 2px solid #e2e8f0; background: white; border-radius: 8px; cursor: pointer; text-align: center; transition: all 0.3s ease; }
+        .upload-type-selector { display: flex; gap: 12px; margin-bottom: 15px; }
+        .upload-type-btn { flex: 1; padding: 10px; border: 2px solid #e2e8f0; background: white; border-radius: 6px; cursor: pointer; text-align: center; transition: all 0.3s ease; }
         .upload-type-btn.active { background: #667eea; color: white; border-color: #667eea; }
-        .btn { padding: 12px 25px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-decoration: none; display: inline-block; text-align: center; }
+        .btn { padding: 12px 20px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-decoration: none; display: inline-block; text-align: center; }
         .btn-primary { background: #667eea; color: white; }
         .btn-primary:hover { background: #5a6fd8; transform: translateY(-2px); }
         .btn-success { background: #48bb78; color: white; }
@@ -50,27 +50,30 @@
         .btn-secondary:hover { background: #9099a6; }
         .btn-outline { background: transparent; color: white; border: 2px solid white; }
         .btn-outline:hover { background: white; color: #667eea; }
-        .btn-small { padding: 8px 15px; font-size: 0.9rem; }
+        .btn-small { padding: 8px 12px; font-size: 0.85rem; }
         .download-btn { background: #4299e1; color: white; width: 100%; margin-top: 10px; }
         .download-btn:hover { background: #3182ce; }
-        .alert { padding: 15px; border-radius: 8px; margin: 20px 0; font-weight: 500; }
+        .alert { padding: 12px; border-radius: 6px; margin: 15px 0; font-weight: 500; }
         .alert-error { background: #fed7d7; color: #c53030; border: 1px solid #feb2b2; }
         .alert-success { background: #c6f6d5; color: #276749; border: 1px solid #9ae6b4; }
-        .empty-message { text-align: center; color: #718096; font-style: italic; padding: 40px; grid-column: 1 / -1; }
-        .logout-admin-btn { position: fixed; top: 20px; right: 20px; z-index: 1000; }
+        .empty-message { text-align: center; color: #718096; font-style: italic; padding: 30px; grid-column: 1 / -1; }
+        .logout-admin-btn { position: fixed; top: 15px; right: 15px; z-index: 1000; }
+        
         @media (max-width: 768px) {
             .container { padding: 10px; }
             .hero h1 { font-size: 2rem; }
-            .section { padding: 25px; margin: 20px 0; }
+            .section { padding: 20px; margin: 15px 0; }
             .grid { grid-template-columns: 1fr; }
-            .auth-section { margin: 20px; padding: 30px; }
-            .upload-section { padding: 25px; }
+            .auth-section { margin: 20px; padding: 25px; }
+            .upload-section { padding: 20px; }
             .form-actions, .upload-type-selector { flex-direction: column; }
+            .logout-admin-btn { position: relative; top: auto; right: auto; margin: 10px 0; }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Seção de Autenticação -->
         <section id="auth" class="auth-section">
             <div class="auth-container">
                 <h1>Acesso Administrativo</h1>
@@ -82,8 +85,11 @@
             </div>
         </section>
 
+        <!-- Seção de Upload (Admin) -->
         <section id="upload" class="upload-section hidden">
             <h2>Publicar Novo Conteúdo</h2>
+            
+            <!-- Formulário de Upload -->
             <div id="upload-form-container">
                 <form id="upload-form" class="upload-form">
                     <input type="text" id="title" placeholder="Título" required>
@@ -118,6 +124,7 @@
                 </form>
             </div>
             
+            <!-- Formulário de Edição -->
             <div id="edit-form-container" class="hidden">
                 <form id="edit-form" class="upload-form">
                     <input type="hidden" id="edit-id">
@@ -159,6 +166,7 @@
             <button id="add-item-btn" class="btn btn-primary">Adicionar Novo Item</button>
         </section>
 
+        <!-- Conteúdo Principal -->
         <main id="main-content">
             <header class="hero">
                 <h1>Executores e Scripts</h1>
@@ -166,14 +174,20 @@
                 <button id="logout-btn" class="btn btn-outline hidden">Sair do Admin</button>
             </header>
 
+            <!-- Seção de Executores -->
             <section id="executors" class="section">
                 <h2>Executores Disponíveis</h2>
-                <div id="executors-grid" class="grid"></div>
+                <div id="executors-grid" class="grid">
+                    <!-- Os executores serão carregados aqui via JavaScript -->
+                </div>
             </section>
 
+            <!-- Seção de Scripts -->
             <section id="scripts" class="section">
                 <h2>Scripts Disponíveis</h2>
-                <div id="scripts-grid" class="grid"></div>
+                <div id="scripts-grid" class="grid">
+                    <!-- Os scripts serão carregados aqui via JavaScript -->
+                </div>
             </section>
         </main>
     </div>
@@ -185,39 +199,53 @@
     const SECRET_CODE = "admin123";
     let currentUploadType = 'url';
 
-    // Elementos
-    const authSection = document.getElementById('auth');
-    const uploadSection = document.getElementById('upload');
-    const authForm = document.getElementById('auth-form');
-    const uploadForm = document.getElementById('upload-form');
-    const editForm = document.getElementById('edit-form');
-    const accessCodeInput = document.getElementById('access-code');
-    const authMessage = document.getElementById('auth-message');
-    const uploadMessage = document.getElementById('upload-message');
-    const logoutBtn = document.getElementById('logout-btn');
-    const logoutAdminBtn = document.getElementById('logout-admin');
-    const executorsGrid = document.getElementById('executors-grid');
-    const scriptsGrid = document.getElementById('scripts-grid');
-    const uploadFormContainer = document.getElementById('upload-form-container');
-    const editFormContainer = document.getElementById('edit-form-container');
-    const cancelEditBtn = document.getElementById('cancel-edit-btn');
-    const addItemBtn = document.getElementById('add-item-btn');
+    // Elementos DOM
+    const elements = {
+        authSection: document.getElementById('auth'),
+        uploadSection: document.getElementById('upload'),
+        authForm: document.getElementById('auth-form'),
+        uploadForm: document.getElementById('upload-form'),
+        editForm: document.getElementById('edit-form'),
+        accessCodeInput: document.getElementById('access-code'),
+        authMessage: document.getElementById('auth-message'),
+        uploadMessage: document.getElementById('upload-message'),
+        logoutBtn: document.getElementById('logout-btn'),
+        logoutAdminBtn: document.getElementById('logout-admin'),
+        executorsGrid: document.getElementById('executors-grid'),
+        scriptsGrid: document.getElementById('scripts-grid'),
+        uploadFormContainer: document.getElementById('upload-form-container'),
+        editFormContainer: document.getElementById('edit-form-container'),
+        cancelEditBtn: document.getElementById('cancel-edit-btn'),
+        addItemBtn: document.getElementById('add-item-btn'),
+        fileUpload: document.getElementById('file-upload'),
+        fileSelectBtn: document.getElementById('file-select-btn'),
+        fileName: document.getElementById('file-name'),
+        urlField: document.getElementById('url-field'),
+        fileField: document.getElementById('file-field'),
+        uploadTypeBtns: document.querySelectorAll('.upload-type-btn'),
+        editFileUpload: document.getElementById('edit-file-upload'),
+        editFileSelectBtn: document.getElementById('edit-file-select-btn'),
+        editFileName: document.getElementById('edit-file-name'),
+        editUrlField: document.getElementById('edit-url-field'),
+        editFileField: document.getElementById('edit-file-field'),
+        editUploadTypeBtns: document.querySelectorAll('#edit-form-container .upload-type-btn')
+    };
 
-    // Elementos de upload
-    const fileUpload = document.getElementById('file-upload');
-    const fileSelectBtn = document.getElementById('file-select-btn');
-    const fileName = document.getElementById('file-name');
-    const urlField = document.getElementById('url-field');
-    const fileField = document.getElementById('file-field');
-    const uploadTypeBtns = document.querySelectorAll('.upload-type-btn');
-
-    // Elementos de edição
-    const editFileUpload = document.getElementById('edit-file-upload');
-    const editFileSelectBtn = document.getElementById('edit-file-select-btn');
-    const editFileName = document.getElementById('edit-file-name');
-    const editUrlField = document.getElementById('edit-url-field');
-    const editFileField = document.getElementById('edit-file-field');
-    const editUploadTypeBtns = document.querySelectorAll('#edit-form-container .upload-type-btn');
+    // Verificar se todos os elementos essenciais existem
+    function validateElements() {
+        const essentialElements = [
+            'authSection', 'uploadSection', 'authForm', 'uploadForm', 
+            'executorsGrid', 'scriptsGrid'
+        ];
+        
+        for (const elementName of essentialElements) {
+            if (!elements[elementName]) {
+                console.error(`Elemento não encontrado: ${elementName}`);
+                return false;
+            }
+        }
+        return true;
+    }
 
     // Armazenamento
     let publishedItems = JSON.parse(localStorage.getItem('publishedItems')) || [];
@@ -226,39 +254,52 @@
     // Funções de Upload
     function setUploadType(type) {
         currentUploadType = type;
-        uploadTypeBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.type === type));
-        editUploadTypeBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.type === type));
         
+        // Atualizar botões de tipo
+        elements.uploadTypeBtns.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.type === type);
+        });
+        
+        elements.editUploadTypeBtns.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.type === type);
+        });
+        
+        // Mostrar/ocultar campos apropriados
         if (type === 'url') {
-            urlField.classList.remove('hidden');
-            fileField.classList.add('hidden');
-            editUrlField.classList.remove('hidden');
-            editFileField.classList.add('hidden');
+            elements.urlField.classList.remove('hidden');
+            elements.fileField.classList.add('hidden');
+            elements.editUrlField.classList.remove('hidden');
+            elements.editFileField.classList.add('hidden');
             
-            // Remove required do file upload quando não está visível
-            fileUpload.removeAttribute('required');
-            document.getElementById('download-url').setAttribute('required', 'true');
+            // Atualizar atributos required
+            elements.fileUpload.removeAttribute('required');
+            document.getElementById('download-url')?.setAttribute('required', 'true');
         } else {
-            urlField.classList.add('hidden');
-            fileField.classList.remove('hidden');
-            editUrlField.classList.add('hidden');
-            editFileField.classList.remove('hidden');
+            elements.urlField.classList.add('hidden');
+            elements.fileField.classList.remove('hidden');
+            elements.editUrlField.classList.add('hidden');
+            elements.editFileField.classList.remove('hidden');
             
-            // Remove required da URL quando não está visível
-            document.getElementById('download-url').removeAttribute('required');
-            fileUpload.setAttribute('required', 'true');
+            // Atualizar atributos required
+            document.getElementById('download-url')?.removeAttribute('required');
+            elements.fileUpload.setAttribute('required', 'true');
         }
     }
 
     function handleFileSelect(fileInput, fileNameElement) {
-        if (fileInput.files.length > 0) {
+        if (fileInput && fileInput.files.length > 0) {
             const file = fileInput.files[0];
-            fileNameElement.textContent = `${file.name} (${formatFileSize(file.size)})`;
+            if (fileNameElement) {
+                fileNameElement.textContent = `${file.name} (${formatFileSize(file.size)})`;
+            }
             
+            // Validar tipo de arquivo
             if (!file.name.toLowerCase().endsWith('.apk') && !file.name.toLowerCase().endsWith('.apks')) {
                 showAlert('Por favor, selecione um arquivo APK válido.', true);
                 fileInput.value = '';
-                fileNameElement.textContent = 'Nenhum arquivo selecionado';
+                if (fileNameElement) {
+                    fileNameElement.textContent = 'Nenhum arquivo selecionado';
+                }
                 return false;
             }
             return true;
@@ -280,15 +321,20 @@
                         data: Array.from(new Uint8Array(e.target.result)),
                         uploadDate: new Date().toISOString()
                     };
+                    
                     localStorage.setItem('fileStorage', JSON.stringify(fileStorage));
                     
                     // Criar URL para download
                     const blob = new Blob([new Uint8Array(e.target.result)], { type: file.type });
                     const downloadUrl = URL.createObjectURL(blob);
                     
-                    resolve({ fileId, downloadUrl, fileName: file.name });
+                    resolve({ 
+                        fileId, 
+                        downloadUrl, 
+                        fileName: file.name 
+                    });
                 } catch (error) {
-                    reject(error);
+                    reject(new Error('Erro ao processar o arquivo: ' + error.message));
                 }
             };
             
@@ -301,51 +347,75 @@
     }
 
     // Funções Principais
-    function saveItems() { 
-        localStorage.setItem('publishedItems', JSON.stringify(publishedItems)); 
+    function saveItems() {
+        try {
+            localStorage.setItem('publishedItems', JSON.stringify(publishedItems));
+            return true;
+        } catch (error) {
+            console.error('Erro ao salvar itens:', error);
+            showAlert('Erro ao salvar os dados.', true);
+            return false;
+        }
     }
 
     function checkAuthStatus() {
-        if (localStorage.getItem('authenticated') === 'true') showUploadSection();
+        const isAuthenticated = localStorage.getItem('authenticated') === 'true';
+        if (isAuthenticated) {
+            showUploadSection();
+        }
     }
 
     function showUploadSection() {
-        authSection.classList.add('hidden');
-        uploadSection.classList.remove('hidden');
-        logoutBtn.classList.remove('hidden');
-        logoutAdminBtn.classList.remove('hidden');
+        if (elements.authSection) elements.authSection.classList.add('hidden');
+        if (elements.uploadSection) elements.uploadSection.classList.remove('hidden');
+        if (elements.logoutBtn) elements.logoutBtn.classList.remove('hidden');
+        if (elements.logoutAdminBtn) elements.logoutAdminBtn.classList.remove('hidden');
     }
 
     function hideUploadSection() {
-        authSection.classList.remove('hidden');
-        uploadSection.classList.add('hidden');
-        logoutBtn.classList.add('hidden');
-        logoutAdminBtn.classList.add('hidden');
+        if (elements.authSection) elements.authSection.classList.remove('hidden');
+        if (elements.uploadSection) elements.uploadSection.classList.add('hidden');
+        if (elements.logoutBtn) elements.logoutBtn.classList.add('hidden');
+        if (elements.logoutAdminBtn) elements.logoutAdminBtn.classList.add('hidden');
         localStorage.removeItem('authenticated');
     }
 
     function displayPublishedItems() {
-        displayItemsInGrid(executorsGrid, 'executor');
-        displayItemsInGrid(scriptsGrid, 'script');
+        displayItemsInGrid(elements.executorsGrid, 'executor');
+        displayItemsInGrid(elements.scriptsGrid, 'script');
     }
 
     function displayItemsInGrid(gridElement, type) {
         if (!gridElement) return;
+        
         gridElement.innerHTML = '';
         const items = publishedItems.filter(i => i.type === type);
-        if (items.length) {
-            items.forEach(i => gridElement.appendChild(createCard(i)));
-        } else {
+        
+        if (items.length === 0) {
             gridElement.innerHTML = `<div class="empty-message">Nenhum ${type} publicado ainda.</div>`;
+            return;
         }
+
+        items.forEach(item => {
+            const card = createCard(item);
+            if (card) {
+                gridElement.appendChild(card);
+            }
+        });
     }
 
     function createCard(item) {
+        if (!item) return null;
+
         const card = document.createElement('div');
         card.className = 'card';
-        const dateText = item.lastUpdate ? `Atualizado em: ${item.lastUpdate}` : `Publicado em: ${item.date || new Date().toLocaleDateString('pt-BR')}`;
         
-        const adminButtons = localStorage.getItem('authenticated') === 'true' ? `
+        const dateText = item.lastUpdate 
+            ? `Atualizado em: ${item.lastUpdate}` 
+            : `Publicado em: ${item.date || new Date().toLocaleDateString('pt-BR')}`;
+        
+        const isAdmin = localStorage.getItem('authenticated') === 'true';
+        const adminButtons = isAdmin ? `
             <div class="card-actions">
                 <button class="btn btn-warning btn-small edit-btn" data-id="${item.id}">Editar</button>
                 <button class="btn btn-danger btn-small delete-btn" data-id="${item.id}">Excluir</button>
@@ -361,19 +431,28 @@
         ` : '';
 
         card.innerHTML = `
-            <div class="card-header"><h3>${item.title}</h3></div>
+            <div class="card-header">
+                <h3>${escapeHtml(item.title)}</h3>
+            </div>
             <div class="card-body">
-                <p>${item.description}</p>
+                <p>${escapeHtml(item.description)}</p>
                 <p class="date">${dateText}</p>
                 ${fileInfo}
-                <a href="${item.downloadUrl}" target="_blank" class="btn download-btn" download="${item.fileName || 'download'}">
+                <button class="btn download-btn" data-id="${item.id}">
                     ${item.type === 'executor' ? '📱 Baixar APK' : '📜 Baixar Script'}
-                </a>
+                </button>
                 ${adminButtons}
             </div>
         `;
 
-        if (localStorage.getItem('authenticated') === 'true') {
+        // Evento de download
+        const downloadBtn = card.querySelector('.download-btn');
+        if (downloadBtn) {
+            downloadBtn.addEventListener('click', () => handleDownload(item));
+        }
+
+        // Eventos de admin
+        if (isAdmin) {
             card.querySelector('.edit-btn')?.addEventListener('click', () => showEditForm(item.id));
             card.querySelector('.delete-btn')?.addEventListener('click', () => deleteItem(item.id));
         }
@@ -381,8 +460,37 @@
         return card;
     }
 
+    function handleDownload(item) {
+        if (item.downloadType === 'file' && item.fileId) {
+            // Download de arquivo local
+            const fileData = fileStorage[item.fileId];
+            if (fileData) {
+                const blob = new Blob([new Uint8Array(fileData.data)], { type: fileData.type });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileData.name;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(url), 100);
+            } else {
+                showAlert('Arquivo não encontrado.', true);
+            }
+        } else {
+            // Download por URL externa
+            window.open(item.downloadUrl, '_blank');
+        }
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
     function formatFileSize(bytes) {
-        if (bytes === 0) return '0 Bytes';
+        if (!bytes || bytes === 0) return '0 Bytes';
         const k = 1024;
         const sizes = ['Bytes', 'KB', 'MB', 'GB'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
@@ -390,23 +498,28 @@
     }
 
     function deleteItem(id) {
-        if (confirm('Tem certeza que deseja excluir este item?')) {
-            const item = publishedItems.find(i => i.id === id);
-            if (item?.fileId && fileStorage[item.fileId]) {
+        if (!confirm('Tem certeza que deseja excluir este item?')) return;
+
+        const item = publishedItems.find(i => i.id === id);
+        if (item) {
+            // Limpar arquivo se existir
+            if (item.fileId && fileStorage[item.fileId]) {
                 delete fileStorage[item.fileId];
+                localStorage.setItem('fileStorage', JSON.stringify(fileStorage));
             }
+            
             publishedItems = publishedItems.filter(i => i.id !== id);
-            saveItems();
-            localStorage.setItem('fileStorage', JSON.stringify(fileStorage));
-            displayPublishedItems();
-            showAlert('Item excluído com sucesso.');
+            if (saveItems()) {
+                displayPublishedItems();
+                showAlert('Item excluído com sucesso.');
+            }
         }
     }
 
     function showEditForm(id) {
         const item = publishedItems.find(i => i.id === id);
         if (!item) return;
-        
+
         document.getElementById('edit-id').value = id;
         document.getElementById('edit-title').value = item.title;
         document.getElementById('edit-description').value = item.description;
@@ -414,33 +527,36 @@
 
         if (item.fileId) {
             setUploadType('file');
-            editFileName.textContent = `${item.fileName} (${formatFileSize(item.fileSize)})`;
+            elements.editFileName.textContent = `${item.fileName} (${formatFileSize(item.fileSize)})`;
             document.getElementById('edit-download-url').value = '';
         } else {
             setUploadType('url');
             document.getElementById('edit-download-url').value = item.downloadUrl;
-            editFileName.textContent = 'Nenhum arquivo selecionado';
+            elements.editFileName.textContent = 'Nenhum arquivo selecionado';
         }
 
-        uploadFormContainer.classList.add('hidden');
-        editFormContainer.classList.remove('hidden');
-        editFormContainer.scrollIntoView({ behavior: 'smooth' });
+        elements.uploadFormContainer.classList.add('hidden');
+        elements.editFormContainer.classList.remove('hidden');
+        elements.editFormContainer.scrollIntoView({ behavior: 'smooth' });
     }
 
     function cancelEdit() {
-        editFormContainer.classList.add('hidden');
-        uploadFormContainer.classList.remove('hidden');
-        editForm.reset();
+        elements.editFormContainer.classList.add('hidden');
+        elements.uploadFormContainer.classList.remove('hidden');
+        elements.editForm?.reset();
         setUploadType('url');
     }
 
-    function showAlert(msg, error = false) {
-        if (uploadMessage) {
-            uploadMessage.textContent = msg;
-            uploadMessage.className = error ? 'alert alert-error' : 'alert alert-success';
-            uploadMessage.classList.remove('hidden');
-            setTimeout(() => uploadMessage.classList.add('hidden'), 4000);
-        }
+    function showAlert(message, isError = false) {
+        if (!elements.uploadMessage) return;
+        
+        elements.uploadMessage.textContent = message;
+        elements.uploadMessage.className = isError ? 'alert alert-error' : 'alert alert-success';
+        elements.uploadMessage.classList.remove('hidden');
+        
+        setTimeout(() => {
+            elements.uploadMessage.classList.add('hidden');
+        }, 4000);
     }
 
     function handleLogout() {
@@ -450,169 +566,204 @@
 
     // Event Listeners
     function initializeEventListeners() {
-        uploadTypeBtns.forEach(btn => btn.addEventListener('click', () => setUploadType(btn.dataset.type)));
-        editUploadTypeBtns.forEach(btn => btn.addEventListener('click', () => setUploadType(btn.dataset.type)));
+        if (!validateElements()) {
+            console.error('Erro na inicialização: elementos essenciais não encontrados');
+            return;
+        }
 
-        fileSelectBtn.addEventListener('click', () => fileUpload.click());
-        fileUpload.addEventListener('change', () => handleFileSelect(fileUpload, fileName));
-        editFileSelectBtn.addEventListener('click', () => editFileUpload.click());
-        editFileUpload.addEventListener('change', () => handleFileSelect(editFileUpload, editFileName));
+        // Upload type buttons
+        elements.uploadTypeBtns.forEach(btn => {
+            btn.addEventListener('click', () => setUploadType(btn.dataset.type));
+        });
 
-        authForm?.addEventListener('submit', e => {
+        elements.editUploadTypeBtns.forEach(btn => {
+            btn.addEventListener('click', () => setUploadType(btn.dataset.type));
+        });
+
+        // File selection
+        elements.fileSelectBtn?.addEventListener('click', () => elements.fileUpload?.click());
+        elements.fileUpload?.addEventListener('change', () => handleFileSelect(elements.fileUpload, elements.fileName));
+        
+        elements.editFileSelectBtn?.addEventListener('click', () => elements.editFileUpload?.click());
+        elements.editFileUpload?.addEventListener('change', () => handleFileSelect(elements.editFileUpload, elements.editFileName));
+
+        // Authentication
+        elements.authForm?.addEventListener('submit', (e) => {
             e.preventDefault();
-            if (accessCodeInput.value.trim() === SECRET_CODE) {
+            const code = elements.accessCodeInput?.value.trim();
+            
+            if (code === SECRET_CODE) {
                 localStorage.setItem('authenticated', 'true');
                 showUploadSection();
-                authMessage.classList.add('hidden');
+                if (elements.authMessage) elements.authMessage.classList.add('hidden');
                 displayPublishedItems();
             } else {
-                authMessage.textContent = 'Código de acesso incorreto. Tente novamente.';
-                authMessage.classList.remove('hidden');
-                accessCodeInput.value = '';
+                if (elements.authMessage) {
+                    elements.authMessage.textContent = 'Código de acesso incorreto. Tente novamente.';
+                    elements.authMessage.classList.remove('hidden');
+                }
+                if (elements.accessCodeInput) elements.accessCodeInput.value = '';
             }
         });
 
-        logoutBtn?.addEventListener('click', e => { e.preventDefault(); handleLogout(); });
-        logoutAdminBtn?.addEventListener('click', handleLogout);
-
-        uploadForm?.addEventListener('submit', async e => {
+        // Logout
+        elements.logoutBtn?.addEventListener('click', (e) => {
             e.preventDefault();
-            const title = document.getElementById('title').value.trim();
-            const description = document.getElementById('description').value.trim();
-            const type = document.getElementById('type').value;
+            handleLogout();
+        });
+
+        elements.logoutAdminBtn?.addEventListener('click', handleLogout);
+
+        // Upload form
+        elements.uploadForm?.addEventListener('submit', async (e) => {
+            e.preventDefault();
             
-            if (!title || !description || !type) { 
-                showAlert('Preencha todos os campos', true); 
-                return; 
+            const title = document.getElementById('title')?.value.trim();
+            const description = document.getElementById('description')?.value.trim();
+            const type = document.getElementById('type')?.value;
+
+            if (!title || !description || !type) {
+                showAlert('Preencha todos os campos', true);
+                return;
             }
 
             let downloadUrl = '', fileId = null, fileNameText = '', fileSize = 0;
 
-            if (currentUploadType === 'url') {
-                downloadUrl = document.getElementById('download-url').value.trim();
-                if (!downloadUrl) {
-                    showAlert('Informe a URL de download', true);
-                    return;
-                }
-            } else {
-                // Verifica se um arquivo foi selecionado
-                if (!fileUpload.files || fileUpload.files.length === 0) {
-                    showAlert('Selecione um arquivo APK para upload', true);
-                    return;
-                }
+            try {
+                if (currentUploadType === 'url') {
+                    downloadUrl = document.getElementById('download-url')?.value.trim();
+                    if (!downloadUrl) {
+                        showAlert('Informe a URL de download', true);
+                        return;
+                    }
+                } else {
+                    if (!elements.fileUpload?.files || elements.fileUpload.files.length === 0) {
+                        showAlert('Selecione um arquivo APK para upload', true);
+                        return;
+                    }
 
-                const file = fileUpload.files[0];
-                if (!handleFileSelect(fileUpload, fileName)) {
-                    return;
-                }
+                    const file = elements.fileUpload.files[0];
+                    if (!handleFileSelect(elements.fileUpload, elements.fileName)) {
+                        return;
+                    }
 
-                try {
                     const result = await saveFileToStorage(file);
                     downloadUrl = result.downloadUrl;
                     fileId = result.fileId;
                     fileNameText = result.fileName;
                     fileSize = file.size;
-                } catch (error) {
-                    console.error('Erro ao salvar arquivo:', error);
-                    showAlert('Erro ao salvar o arquivo: ' + error.message, true);
-                    return;
                 }
-            }
 
-            const newItem = { 
-                id: Date.now(), 
-                title, 
-                description, 
-                type, 
-                downloadUrl, 
-                downloadType: currentUploadType, 
-                fileId, 
-                fileName: fileNameText, 
-                fileSize,
-                date: new Date().toLocaleDateString('pt-BR') 
-            };
-            
-            publishedItems.push(newItem);
-            saveItems();
-            displayPublishedItems();
-            uploadForm.reset();
-            fileName.textContent = 'Nenhum arquivo selecionado';
-            fileUpload.value = '';
-            setUploadType('url');
-            showAlert('Conteúdo publicado com sucesso!');
+                const newItem = {
+                    id: Date.now(),
+                    title,
+                    description,
+                    type,
+                    downloadUrl,
+                    downloadType: currentUploadType,
+                    fileId,
+                    fileName: fileNameText,
+                    fileSize,
+                    date: new Date().toLocaleDateString('pt-BR')
+                };
+
+                publishedItems.push(newItem);
+                
+                if (saveItems()) {
+                    displayPublishedItems();
+                    elements.uploadForm.reset();
+                    if (elements.fileName) elements.fileName.textContent = 'Nenhum arquivo selecionado';
+                    if (elements.fileUpload) elements.fileUpload.value = '';
+                    setUploadType('url');
+                    showAlert('Conteúdo publicado com sucesso!');
+                }
+            } catch (error) {
+                console.error('Erro no upload:', error);
+                showAlert('Erro ao publicar conteúdo: ' + error.message, true);
+            }
         });
 
-        editForm?.addEventListener('submit', async e => {
+        // Edit form
+        elements.editForm?.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const id = parseInt(document.getElementById('edit-id').value);
+            
+            const id = parseInt(document.getElementById('edit-id')?.value);
             const item = publishedItems.find(i => i.id === id);
             if (!item) return;
 
-            item.title = document.getElementById('edit-title').value.trim();
-            item.description = document.getElementById('edit-description').value.trim();
-            item.type = document.getElementById('edit-type').value;
+            item.title = document.getElementById('edit-title')?.value.trim();
+            item.description = document.getElementById('edit-description')?.value.trim();
+            item.type = document.getElementById('edit-type')?.value;
 
-            if (currentUploadType === 'url') {
-                if (item.fileId) {
-                    delete fileStorage[item.fileId];
-                    item.fileId = null; 
-                    item.fileName = ''; 
-                    item.fileSize = 0;
-                }
-                item.downloadUrl = document.getElementById('edit-download-url').value.trim();
-                if (!item.downloadUrl) {
-                    showAlert('Informe a URL de download', true);
-                    return;
-                }
-            } else {
-                if (editFileUpload.files.length > 0) {
-                    try {
-                        const file = editFileUpload.files[0];
+            try {
+                if (currentUploadType === 'url') {
+                    // Limpar arquivo anterior se existir
+                    if (item.fileId && fileStorage[item.fileId]) {
+                        delete fileStorage[item.fileId];
+                        item.fileId = null;
+                        item.fileName = '';
+                        item.fileSize = 0;
+                    }
+                    item.downloadUrl = document.getElementById('edit-download-url')?.value.trim();
+                    if (!item.downloadUrl) {
+                        showAlert('Informe a URL de download', true);
+                        return;
+                    }
+                } else {
+                    if (elements.editFileUpload?.files && elements.editFileUpload.files.length > 0) {
+                        const file = elements.editFileUpload.files[0];
                         const result = await saveFileToStorage(file);
+                        
+                        // Limpar arquivo anterior
                         if (item.fileId && fileStorage[item.fileId]) {
                             delete fileStorage[item.fileId];
                         }
+                        
                         item.downloadUrl = result.downloadUrl;
                         item.fileId = result.fileId;
                         item.fileName = result.fileName;
                         item.fileSize = file.size;
-                    } catch (error) {
-                        showAlert('Erro ao salvar o arquivo: ' + error.message, true);
-                        return;
                     }
                 }
+
+                item.downloadType = currentUploadType;
+                item.lastUpdate = new Date().toLocaleDateString('pt-BR');
+                
+                if (saveItems()) {
+                    localStorage.setItem('fileStorage', JSON.stringify(fileStorage));
+                    displayPublishedItems();
+                    cancelEdit();
+                    showAlert('Conteúdo atualizado com sucesso!');
+                }
+            } catch (error) {
+                console.error('Erro na edição:', error);
+                showAlert('Erro ao atualizar conteúdo: ' + error.message, true);
             }
-
-            item.downloadType = currentUploadType;
-            item.lastUpdate = new Date().toLocaleDateString('pt-BR');
-            saveItems();
-            localStorage.setItem('fileStorage', JSON.stringify(fileStorage));
-            displayPublishedItems();
-            cancelEdit();
-            showAlert('Conteúdo atualizado com sucesso!');
         });
 
-        cancelEditBtn?.addEventListener('click', cancelEdit);
-        addItemBtn?.addEventListener('click', () => {
-            cancelEdit();
-            uploadFormContainer.scrollIntoView({ behavior: 'smooth' });
-        });
+        // Cancel edit
+        elements.cancelEditBtn?.addEventListener('click', cancelEdit);
 
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const targetElement = document.querySelector(this.getAttribute('href'));
-                targetElement?.scrollIntoView({ behavior: 'smooth' });
-            });
+        // Add new item
+        elements.addItemBtn?.addEventListener('click', () => {
+            cancelEdit();
+            elements.uploadFormContainer.scrollIntoView({ behavior: 'smooth' });
         });
     }
 
     // Inicialização
     document.addEventListener('DOMContentLoaded', () => {
+        console.log('Inicializando aplicação...');
+        initializeEventListeners();
         checkAuthStatus();
         displayPublishedItems();
-        initializeEventListeners();
         setUploadType('url');
+        console.log('Aplicação inicializada com sucesso!');
+    });
+
+    // Tratamento de erros globais
+    window.addEventListener('error', (e) => {
+        console.error('Erro global:', e.error);
     });
     </script>
 </body>
