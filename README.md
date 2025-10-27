@@ -111,7 +111,7 @@
                     
                     <div id="file-field" class="hidden">
                         <div class="file-upload-container">
-                            <input type="file" id="file-upload" accept=".apk,.apks,.zip,.rar" class="hidden">
+                            <input type="file" id="file-upload" accept=".apk,.apks,.zip,.rar,.7z" class="hidden">
                             <button type="button" id="file-select-btn" class="file-upload-btn">Selecionar APK</button>
                             <span id="file-name" class="file-name">Nenhum arquivo selecionado</span>
                         </div>
@@ -146,7 +146,7 @@
                     
                     <div id="edit-file-field" class="hidden">
                         <div class="file-upload-container">
-                            <input type="file" id="edit-file-upload" accept=".apk,.apks,.zip,.rar" class="hidden">
+                            <input type="file" id="edit-file-upload" accept=".apk,.apks,.zip,.rar,.7z" class="hidden">
                             <button type="button" id="edit-file-select-btn" class="file-upload-btn">Selecionar APK</button>
                             <span id="edit-file-name" class="file-name">Nenhum arquivo selecionado</span>
                         </div>
@@ -280,7 +280,7 @@
                 fileNameElement.textContent = `${file.name} (${formatFileSize(file.size)})`;
                 
                 // Validar tipo de arquivo
-                const validExtensions = ['.apk', '.apks', '.zip', '.rar'];
+                const validExtensions = ['.apk', '.apks', '.zip', '.rar', '.7z'];
                 const fileExtension = '.' + file.name.toLowerCase().split('.').pop();
                 
                 if (!validExtensions.includes(fileExtension)) {
@@ -305,7 +305,7 @@
                             name: file.name,
                             type: file.type,
                             size: file.size,
-                            data: e.target.result,
+                            data: e.target.result, // Usando DataURL diretamente
                             uploadDate: new Date().toISOString()
                         };
                         
@@ -334,7 +334,7 @@
                 throw new Error('Arquivo não encontrado no armazenamento');
             }
 
-            // Criar link de download
+            // Criar link de download usando DataURL
             const a = document.createElement('a');
             a.href = fileData.data;
             a.download = fileData.name;
@@ -350,7 +350,7 @@
                 return true;
             } catch (error) {
                 console.error('Erro ao salvar itens:', error);
-                showAlert('Erro ao salvar os dados.', true);
+                showAlert('Erro ao salvar os dados. O navegador pode não suportar armazenamento local.', true);
                 return false;
             }
         }
@@ -445,8 +445,8 @@
                 const editBtn = card.querySelector('.edit-btn');
                 const deleteBtn = card.querySelector('.delete-btn');
                 
-                editBtn.addEventListener('click', () => showEditForm(item.id));
-                deleteBtn.addEventListener('click', () => deleteItem(item.id));
+                if (editBtn) editBtn.addEventListener('click', () => showEditForm(item.id));
+                if (deleteBtn) deleteBtn.addEventListener('click', () => deleteItem(item.id));
             }
             
             return card;
@@ -462,18 +462,23 @@
                 }
             } else {
                 // Download por URL externa
-                window.open(item.downloadUrl, '_blank');
+                if (item.downloadUrl && item.downloadUrl !== '#') {
+                    window.open(item.downloadUrl, '_blank');
+                } else {
+                    showAlert('Link de download não disponível.', true);
+                }
             }
         }
 
         function escapeHtml(text) {
+            if (!text) return '';
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
         }
 
         function formatFileSize(bytes) {
-            if (bytes === 0) return '0 Bytes';
+            if (!bytes || bytes === 0) return '0 Bytes';
             const k = 1024;
             const sizes = ['Bytes', 'KB', 'MB', 'GB'];
             const i = Math.floor(Math.log(bytes) / Math.log(k));
@@ -531,6 +536,8 @@
         }
 
         function showAlert(message, isError = false) {
+            if (!elements.uploadMessage) return;
+            
             elements.uploadMessage.textContent = message;
             elements.uploadMessage.className = isError ? 'alert alert-error' : 'alert alert-success';
             elements.uploadMessage.classList.remove('hidden');
@@ -733,6 +740,12 @@
         checkAuthStatus();
         displayPublishedItems();
         setUploadType('url');
+        console.log('Aplicação inicializada com sucesso!');
+    });
+
+    // Tratamento de erros globais
+    window.addEventListener('error', (e) => {
+        console.error('Erro global:', e.error);
     });
     </script>
 </body>
