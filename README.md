@@ -116,7 +116,7 @@
                             <span id="file-name" class="file-name">Nenhum arquivo selecionado</span>
                         </div>
                         <small style="color: #718096; font-size: 0.8rem;">
-                            ⚠️ Arquivos APK funcionam apenas durante a sessão atual do navegador.
+                            ⚠️ Arquivos APK de até 300MB são suportados. Use URLs externas para arquivos maiores.
                         </small>
                     </div>
                     
@@ -151,7 +151,7 @@
                             <span id="edit-file-name" class="file-name">Nenhum arquivo selecionado</span>
                         </div>
                         <small style="color: #718096; font-size: 0.8rem;">
-                            ⚠️ Arquivos APK funcionam apenas durante a sessão atual do navegador.
+                            ⚠️ Arquivos APK de até 300MB são suportados. Use URLs externas para arquivos maiores.
                         </small>
                     </div>
                     
@@ -204,6 +204,7 @@
     const DB_NAME = 'FileStorageDB';
     const DB_VERSION = 1;
     const STORE_NAME = 'files';
+    const MAX_FILE_SIZE = 300 * 1024 * 1024; // 300MB
 
     // Inicialização quando o DOM estiver carregado
     document.addEventListener('DOMContentLoaded', function() {
@@ -269,6 +270,12 @@
             return new Promise((resolve, reject) => {
                 if (!db) {
                     reject('Banco de dados não inicializado');
+                    return;
+                }
+
+                // Verificar tamanho do arquivo
+                if (file.size > MAX_FILE_SIZE) {
+                    reject(`Arquivo muito grande. Máximo ${MAX_FILE_SIZE / (1024 * 1024)}MB permitido.`);
                     return;
                 }
 
@@ -357,6 +364,24 @@
             });
         }
 
+        // SOLUÇÃO: Verificar espaço disponível no IndexedDB
+        function checkAvailableSpace() {
+            return new Promise((resolve) => {
+                if (!navigator.storage || !navigator.storage.estimate) {
+                    resolve(true); // Se não suporta verificação, assume que tem espaço
+                    return;
+                }
+
+                navigator.storage.estimate().then(estimate => {
+                    const available = estimate.quota - estimate.usage;
+                    const hasSpace = available > MAX_FILE_SIZE;
+                    resolve(hasSpace);
+                }).catch(() => {
+                    resolve(true); // Em caso de erro, assume que tem espaço
+                });
+            });
+        }
+
         // Funções de Upload
         function setUploadType(type) {
             currentUploadType = type;
@@ -409,9 +434,9 @@
                     return false;
                 }
 
-                // Verificar tamanho do arquivo (máximo 50MB)
-                if (file.size > 50 * 1024 * 1024) {
-                    showAlert('Arquivo muito grande. Máximo 50MB permitido.', true);
+                // Verificar tamanho do arquivo (máximo 300MB)
+                if (file.size > MAX_FILE_SIZE) {
+                    showAlert(`Arquivo muito grande. Máximo ${MAX_FILE_SIZE / (1024 * 1024)}MB permitido.`, true);
                     fileInput.value = '';
                     fileNameElement.textContent = 'Nenhum arquivo selecionado';
                     return false;
@@ -537,7 +562,7 @@
                 <div class="card-body">
                     <p>${item.description}</p>
                     <div class="date">Publicado em: ${new Date(item.date).toLocaleDateString('pt-BR')}</div>
-                    ${item.fileName ? `<div class="date">Arquivo: ${item.fileName}</div>` : ''}
+                    ${item.fileName ? `<div class="date">Arquivo: ${item.fileName} (${formatFileSize(item.fileSize || 0)})</div>` : ''}
                 </div>
                 <div class="card-actions">
                     <button class="btn btn-primary download-btn" data-id="${item.id}">
@@ -641,6 +666,7 @@
                 let downloadUrl = '';
                 let fileId = '';
                 let fileName = '';
+                let fileSize = 0;
 
                 try {
                     if (currentUploadType === 'url') {
@@ -658,11 +684,19 @@
                         if (!handleFileSelect(elements.fileUpload, elements.fileName)) {
                             return;
                         }
+
+                        // Verificar espaço disponível
+                        const hasSpace = await checkAvailableSpace();
+                        if (!hasSpace) {
+                            showAlert('Espaço insuficiente no navegador. Use uma URL externa ou libere espaço.', true);
+                            return;
+                        }
                         
                         const file = elements.fileUpload.files[0];
                         const result = await saveFileToDB(file);
                         fileId = result.fileId;
                         fileName = result.fileName;
+                        fileSize = file.size;
                     }
 
                     const newItem = {
@@ -673,6 +707,7 @@
                         downloadUrl,
                         fileId,
                         fileName,
+                        fileSize,
                         date: new Date().toISOString()
                     };
 
@@ -715,6 +750,7 @@
                     let downloadUrl = oldItem.downloadUrl;
                     let fileId = oldItem.fileId;
                     let fileName = oldItem.fileName;
+                    let fileSize = oldItem.fileSize || 0;
 
                     if (currentUploadType === 'url') {
                         downloadUrl = document.getElementById('edit-download-url').value.trim();
@@ -727,6 +763,7 @@
                             await removeFileFromDB(fileId);
                             fileId = '';
                             fileName = '';
+                            fileSize = 0;
                         }
                     } else {
                         if (elements.editFileUpload.files.length) {
@@ -734,6 +771,14 @@
                             if (!handleFileSelect(elements.editFileUpload, elements.editFileName)) {
                                 return;
                             }
+
+                            // Verificar espaço disponível
+                            const hasSpace = await checkAvailableSpace();
+                            if (!hasSpace) {
+                                showAlert('Espaço insuficiente no navegador. Use uma URL externa ou libere espaço.', true);
+                                return;
+                            }
+
                             // Remover arquivo antigo se existir
                             if (fileId) {
                                 await removeFileFromDB(fileId);
@@ -742,6 +787,7 @@
                             const result = await saveFileToDB(file);
                             fileId = result.fileId;
                             fileName = result.fileName;
+                            fileSize = file.size;
                         } else if (!fileId) {
                             showAlert('Por favor, selecione um arquivo ou altere para URL.', true);
                             return;
@@ -755,7 +801,8 @@
                         type,
                         downloadUrl,
                         fileId,
-                        fileName
+                        fileName,
+                        fileSize
                     };
 
                     if (saveItems()) {
