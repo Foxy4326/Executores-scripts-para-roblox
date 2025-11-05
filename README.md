@@ -106,7 +106,7 @@
                     </div>
                     
                     <div id="url-field">
-                        <input type="url" id="download-url" placeholder="https://exemplo.com/download">
+                        <input type="url" id="download-url" placeholder="https://exemplo.com/download" required>
                     </div>
                     
                     <div id="file-field" class="hidden">
@@ -116,7 +116,7 @@
                             <span id="file-name" class="file-name">Nenhum arquivo selecionado</span>
                         </div>
                         <small style="color: #718096; font-size: 0.8rem;">
-                            ⚠️ Arquivos APK são armazenados localmente no navegador.
+                            ⚠️ Arquivos APK funcionam apenas durante a sessão atual do navegador.
                         </small>
                     </div>
                     
@@ -141,7 +141,7 @@
                     </div>
                     
                     <div id="edit-url-field">
-                        <input type="url" id="edit-download-url" placeholder="URL de Download">
+                        <input type="url" id="edit-download-url" placeholder="URL de Download" required>
                     </div>
                     
                     <div id="edit-file-field" class="hidden">
@@ -151,7 +151,7 @@
                             <span id="edit-file-name" class="file-name">Nenhum arquivo selecionado</span>
                         </div>
                         <small style="color: #718096; font-size: 0.8rem;">
-                            ⚠️ Arquivos APK são armazenados localmente no navegador.
+                            ⚠️ Arquivos APK funcionam apenas durante a sessão atual do navegador.
                         </small>
                     </div>
                     
@@ -198,6 +198,12 @@
     // Configuração
     const SECRET_CODE = "admin123";
     let currentUploadType = 'url';
+    
+    // SOLUÇÃO: Usar IndexedDB para armazenamento de arquivos grandes
+    let db;
+    const DB_NAME = 'FileStorageDB';
+    const DB_VERSION = 1;
+    const STORE_NAME = 'files';
 
     // Inicialização quando o DOM estiver carregado
     document.addEventListener('DOMContentLoaded', function() {
@@ -234,9 +240,122 @@
             editFileField: document.getElementById('edit-file-field')
         };
 
-        // Armazenamento - CORREÇÃO: Carregar tanto os itens quanto os arquivos
+        // Armazenamento
         let publishedItems = JSON.parse(localStorage.getItem('publishedItems')) || [];
-        let fileStorage = JSON.parse(localStorage.getItem('fileStorage')) || {};
+
+        // SOLUÇÃO: Inicializar IndexedDB
+        function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                
+                request.onerror = () => reject('Erro ao abrir o banco de dados');
+                request.onsuccess = () => {
+                    db = request.result;
+                    resolve(db);
+                };
+                
+                request.onupgradeneeded = (event) => {
+                    const database = event.target.result;
+                    if (!database.objectStoreNames.contains(STORE_NAME)) {
+                        const store = database.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                        store.createIndex('name', 'name', { unique: false });
+                    }
+                };
+            });
+        }
+
+        // SOLUÇÃO: Salvar arquivo no IndexedDB
+        function saveFileToDB(file) {
+            return new Promise((resolve, reject) => {
+                if (!db) {
+                    reject('Banco de dados não inicializado');
+                    return;
+                }
+
+                const fileId = 'file_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const transaction = db.transaction([STORE_NAME], 'readwrite');
+                    const store = transaction.objectStore(STORE_NAME);
+                    
+                    const fileData = {
+                        id: fileId,
+                        name: file.name,
+                        type: file.type,
+                        size: file.size,
+                        data: e.target.result,
+                        uploadDate: new Date().toISOString()
+                    };
+                    
+                    const request = store.add(fileData);
+                    
+                    request.onsuccess = () => resolve({ fileId, fileName: file.name });
+                    request.onerror = () => reject('Erro ao salvar arquivo no banco de dados');
+                };
+                
+                reader.onerror = () => reject('Erro ao ler o arquivo');
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        // SOLUÇÃO: Baixar arquivo do IndexedDB
+        function downloadFileFromDB(fileId) {
+            return new Promise((resolve, reject) => {
+                if (!db) {
+                    reject('Banco de dados não inicializado');
+                    return;
+                }
+
+                const transaction = db.transaction([STORE_NAME], 'readonly');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.get(fileId);
+                
+                request.onsuccess = () => {
+                    const fileData = request.result;
+                    if (!fileData) {
+                        reject('Arquivo não encontrado');
+                        return;
+                    }
+
+                    // Converter ArrayBuffer para Blob
+                    const blob = new Blob([fileData.data], { type: fileData.type });
+                    const url = URL.createObjectURL(blob);
+                    
+                    // Criar link de download
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = fileData.name;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    
+                    // Liberar URL
+                    setTimeout(() => URL.revokeObjectURL(url), 100);
+                    
+                    resolve();
+                };
+                
+                request.onerror = () => reject('Erro ao recuperar arquivo');
+            });
+        }
+
+        // SOLUÇÃO: Remover arquivo do IndexedDB
+        function removeFileFromDB(fileId) {
+            return new Promise((resolve, reject) => {
+                if (!db) {
+                    reject('Banco de dados não inicializado');
+                    return;
+                }
+
+                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.delete(fileId);
+                
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject('Erro ao remover arquivo');
+            });
+        }
 
         // Funções de Upload
         function setUploadType(type) {
@@ -258,11 +377,19 @@
                 elements.fileField.classList.add('hidden');
                 elements.editUrlField.classList.remove('hidden');
                 elements.editFileField.classList.add('hidden');
+                
+                // Atualizar atributos required
+                document.getElementById('download-url').setAttribute('required', 'true');
+                document.getElementById('edit-download-url').setAttribute('required', 'true');
             } else {
                 elements.urlField.classList.add('hidden');
                 elements.fileField.classList.remove('hidden');
                 elements.editUrlField.classList.add('hidden');
                 elements.editFileField.classList.remove('hidden');
+                
+                // Remover required da URL
+                document.getElementById('download-url').removeAttribute('required');
+                document.getElementById('edit-download-url').removeAttribute('required');
             }
         }
 
@@ -282,9 +409,9 @@
                     return false;
                 }
 
-                // Verificar tamanho do arquivo (máximo 10MB para evitar problemas de armazenamento)
-                if (file.size > 10 * 1024 * 1024) {
-                    showAlert('Arquivo muito grande. Máximo 10MB permitido.', true);
+                // Verificar tamanho do arquivo (máximo 50MB)
+                if (file.size > 50 * 1024 * 1024) {
+                    showAlert('Arquivo muito grande. Máximo 50MB permitido.', true);
                     fileInput.value = '';
                     fileNameElement.textContent = 'Nenhum arquivo selecionado';
                     return false;
@@ -292,68 +419,6 @@
                 return true;
             }
             return false;
-        }
-
-        // CORREÇÃO: Função para salvar arquivo no localStorage
-        function saveFileToStorage(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    try {
-                        const fileId = 'file_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                        
-                        // Armazenar no fileStorage
-                        fileStorage[fileId] = {
-                            name: file.name,
-                            type: file.type,
-                            size: file.size,
-                            data: e.target.result,
-                            uploadDate: new Date().toISOString()
-                        };
-                        
-                        // Salvar no localStorage
-                        localStorage.setItem('fileStorage', JSON.stringify(fileStorage));
-                        
-                        resolve({ 
-                            fileId, 
-                            fileName: file.name 
-                        });
-                    } catch (error) {
-                        reject(new Error('Erro ao processar o arquivo: ' + error.message));
-                    }
-                };
-                
-                reader.onerror = () => {
-                    reject(new Error('Erro ao ler o arquivo'));
-                };
-                
-                reader.readAsDataURL(file);
-            });
-        }
-
-        // CORREÇÃO: Função para baixar arquivo do storage
-        function downloadStoredFile(fileId) {
-            const fileData = fileStorage[fileId];
-            if (!fileData) {
-                throw new Error('Arquivo não encontrado no armazenamento');
-            }
-
-            // Criar link de download usando DataURL
-            const a = document.createElement('a');
-            a.href = fileData.data;
-            a.download = fileData.name;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        }
-
-        // CORREÇÃO: Função para remover arquivo do storage
-        function removeFileFromStorage(fileId) {
-            if (fileStorage[fileId]) {
-                delete fileStorage[fileId];
-                localStorage.setItem('fileStorage', JSON.stringify(fileStorage));
-            }
         }
 
         // Funções Auxiliares
@@ -560,7 +625,7 @@
                 });
             });
 
-            // CORREÇÃO: Formulário de upload
+            // SOLUÇÃO: Formulário de upload com IndexedDB
             elements.uploadForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
@@ -595,7 +660,7 @@
                         }
                         
                         const file = elements.fileUpload.files[0];
-                        const result = await saveFileToStorage(file);
+                        const result = await saveFileToDB(file);
                         fileId = result.fileId;
                         fileName = result.fileName;
                     }
@@ -625,7 +690,7 @@
                 }
             });
 
-            // CORREÇÃO: Formulário de edição
+            // SOLUÇÃO: Formulário de edição com IndexedDB
             elements.editForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
@@ -659,7 +724,7 @@
                         }
                         // Limpar dados de arquivo se estiver mudando para URL
                         if (fileId) {
-                            removeFileFromStorage(fileId);
+                            await removeFileFromDB(fileId);
                             fileId = '';
                             fileName = '';
                         }
@@ -671,10 +736,10 @@
                             }
                             // Remover arquivo antigo se existir
                             if (fileId) {
-                                removeFileFromStorage(fileId);
+                                await removeFileFromDB(fileId);
                             }
                             const file = elements.editFileUpload.files[0];
-                            const result = await saveFileToStorage(file);
+                            const result = await saveFileToDB(file);
                             fileId = result.fileId;
                             fileName = result.fileName;
                         } else if (!fileId) {
@@ -708,7 +773,7 @@
             elements.addItemBtn.addEventListener('click', hideEditForm);
 
             // Delegation para botões dinâmicos
-            document.addEventListener('click', function(e) {
+            document.addEventListener('click', async function(e) {
                 // Download
                 if (e.target.classList.contains('download-btn')) {
                     const itemId = e.target.dataset.id;
@@ -717,7 +782,7 @@
                     if (item) {
                         if (item.fileId) {
                             try {
-                                downloadStoredFile(item.fileId);
+                                await downloadFileFromDB(item.fileId);
                                 showAlert('Download iniciado!', false);
                             } catch (error) {
                                 showAlert('Erro ao baixar arquivo: ' + error.message, true);
@@ -742,7 +807,11 @@
                     if (confirm('Tem certeza que deseja excluir este item?')) {
                         const item = publishedItems.find(item => item.id === itemId);
                         if (item && item.fileId) {
-                            removeFileFromStorage(item.fileId);
+                            try {
+                                await removeFileFromDB(item.fileId);
+                            } catch (error) {
+                                console.error('Erro ao remover arquivo:', error);
+                            }
                         }
                         publishedItems = publishedItems.filter(item => item.id !== itemId);
                         if (saveItems()) {
@@ -755,11 +824,23 @@
         }
 
         // Inicialização
-        function init() {
-            initEventListeners();
-            checkAuthStatus();
-            renderItems();
-            setUploadType('url');
+        async function init() {
+            try {
+                await initDB();
+                console.log('IndexedDB inicializado com sucesso');
+                initEventListeners();
+                checkAuthStatus();
+                renderItems();
+                setUploadType('url');
+            } catch (error) {
+                console.error('Erro ao inicializar IndexedDB:', error);
+                showAlert('Erro ao inicializar armazenamento de arquivos. Use URLs externas para arquivos grandes.', true, 'auth');
+                // Continuar mesmo com erro no IndexedDB
+                initEventListeners();
+                checkAuthStatus();
+                renderItems();
+                setUploadType('url');
+            }
         }
 
         // Iniciar aplicação
