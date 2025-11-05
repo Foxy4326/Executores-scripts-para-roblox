@@ -5,12 +5,191 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Executores e Scripts</title>
     <style>
-        /* ... (mantenha todo o CSS igual) ... */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .hidden { display: none !important; }
+        .hero { text-align: center; padding: 60px 20px; color: white; }
+        .hero h1 { font-size: 2.5rem; margin-bottom: 1rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .hero p { font-size: 1.2rem; margin-bottom: 2rem; opacity: 0.9; }
+        .section { background: white; margin: 30px 0; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .section h2 { color: #4a5568; margin-bottom: 25px; font-size: 1.8rem; border-bottom: 3px solid #667eea; padding-bottom: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-top: 20px; }
+        .card { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 12px; padding: 20px; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+        .card-header h3 { color: #2d3748; margin-bottom: 15px; font-size: 1.3rem; }
+        .card-body p { color: #4a5568; margin-bottom: 15px; line-height: 1.5; }
+        .date { color: #718096; font-size: 0.9rem; font-style: italic; }
+        .card-actions { margin-top: 20px; display: flex; gap: 10px; }
+        .auth-section { background: white; margin: 50px auto; padding: 40px; border-radius: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); max-width: 400px; text-align: center; }
+        .auth-section h1 { color: #4a5568; margin-bottom: 25px; }
+        .auth-form, .upload-form { display: flex; flex-direction: column; gap: 15px; }
+        .upload-section { background: white; margin: 30px 0; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .upload-form { max-width: 600px; }
+        .form-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+        input, textarea, select { padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s ease; width: 100%; }
+        input:focus, textarea:focus, select:focus { outline: none; border-color: #667eea; }
+        textarea { min-height: 100px; resize: vertical; }
+        .file-upload-container { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+        .file-upload-btn { background: #4299e1; color: white; padding: 10px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; }
+        .file-upload-btn:hover { background: #3182ce; }
+        .file-name { color: #718096; font-size: 0.9rem; }
+        .upload-type-selector { display: flex; gap: 12px; margin-bottom: 15px; }
+        .upload-type-btn { flex: 1; padding: 10px; border: 2px solid #e2e8f0; background: white; border-radius: 6px; cursor: pointer; text-align: center; transition: all 0.3s ease; }
+        .upload-type-btn.active { background: #667eea; color: white; border-color: #667eea; }
+        .btn { padding: 12px 20px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-decoration: none; display: inline-block; text-align: center; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5a6fd8; transform: translateY(-2px); }
+        .btn-success { background: #48bb78; color: white; }
+        .btn-success:hover { background: #3fa76c; transform: translateY(-2px); }
+        .btn-warning { background: #ed8936; color: white; }
+        .btn-warning:hover { background: #e37820; }
+        .btn-danger { background: #f56565; color: white; }
+        .btn-danger:hover { background: #e53e3e; }
+        .btn-secondary { background: #a0aec0; color: white; }
+        .btn-secondary:hover { background: #9099a6; }
+        .btn-outline { background: transparent; color: white; border: 2px solid white; }
+        .btn-outline:hover { background: white; color: #667eea; }
+        .btn-small { padding: 8px 12px; font-size: 0.85rem; }
+        .download-btn { background: #4299e1; color: white; width: 100%; margin-top: 10px; }
+        .download-btn:hover { background: #3182ce; }
+        .alert { padding: 12px; border-radius: 6px; margin: 15px 0; font-weight: 500; }
+        .alert-error { background: #fed7d7; color: #c53030; border: 1px solid #feb2b2; }
+        .alert-success { background: #c6f6d5; color: #276749; border: 1px solid #9ae6b4; }
+        .empty-message { text-align: center; color: #718096; font-style: italic; padding: 30px; grid-column: 1 / -1; }
+        .logout-admin-btn { position: fixed; top: 15px; right: 15px; z-index: 1000; }
+        
+        @media (max-width: 768px) {
+            .container { padding: 10px; }
+            .hero h1 { font-size: 2rem; }
+            .section { padding: 20px; margin: 15px 0; }
+            .grid { grid-template-columns: 1fr; }
+            .auth-section { margin: 20px; padding: 25px; }
+            .upload-section { padding: 20px; }
+            .form-actions, .upload-type-selector { flex-direction: column; }
+            .logout-admin-btn { position: relative; top: auto; right: auto; margin: 10px 0; }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- ... (mantenha todo o HTML igual) ... -->
+        <!-- Seção de Autenticação -->
+        <section id="auth" class="auth-section">
+            <div class="auth-container">
+                <h1>Acesso Administrativo</h1>
+                <form id="auth-form" class="auth-form">
+                    <input type="password" id="access-code" placeholder="Digite o código de acesso" required>
+                    <button type="submit" class="btn btn-primary">Acessar</button>
+                </form>
+                <div id="auth-message" class="alert alert-error hidden"></div>
+            </div>
+        </section>
+
+        <!-- Seção de Upload (Admin) -->
+        <section id="upload" class="upload-section hidden">
+            <h2>Publicar Novo Conteúdo</h2>
+            
+            <!-- Formulário de Upload -->
+            <div id="upload-form-container">
+                <form id="upload-form" class="upload-form">
+                    <input type="text" id="title" placeholder="Título" required>
+                    <textarea id="description" placeholder="Descrição" required></textarea>
+                    <select id="type" required>
+                        <option value="">Selecione o tipo</option>
+                        <option value="executor">Executor</option>
+                        <option value="script">Script</option>
+                    </select>
+                    
+                    <div class="upload-type-selector">
+                        <button type="button" class="upload-type-btn active" data-type="url">URL/Link</button>
+                        <button type="button" class="upload-type-btn" data-type="file">Arquivo APK</button>
+                    </div>
+                    
+                    <div id="url-field">
+                        <input type="url" id="download-url" placeholder="https://exemplo.com/download">
+                    </div>
+                    
+                    <div id="file-field" class="hidden">
+                        <div class="file-upload-container">
+                            <input type="file" id="file-upload" accept=".apk,.apks,.zip,.rar,.7z" class="hidden">
+                            <button type="button" id="file-select-btn" class="file-upload-btn">Selecionar APK</button>
+                            <span id="file-name" class="file-name">Nenhum arquivo selecionado</span>
+                        </div>
+                        <small style="color: #718096; font-size: 0.8rem;">
+                            ⚠️ Arquivos APK são armazenados localmente no navegador.
+                        </small>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success">Publicar</button>
+                </form>
+            </div>
+            
+            <!-- Formulário de Edição -->
+            <div id="edit-form-container" class="hidden">
+                <form id="edit-form" class="upload-form">
+                    <input type="hidden" id="edit-id">
+                    <input type="text" id="edit-title" placeholder="Título" required>
+                    <textarea id="edit-description" placeholder="Descrição" required></textarea>
+                    <select id="edit-type" required>
+                        <option value="executor">Executor</option>
+                        <option value="script">Script</option>
+                    </select>
+                    
+                    <div class="upload-type-selector">
+                        <button type="button" class="upload-type-btn active" data-type="url">URL/Link</button>
+                        <button type="button" class="upload-type-btn" data-type="file">Arquivo APK</button>
+                    </div>
+                    
+                    <div id="edit-url-field">
+                        <input type="url" id="edit-download-url" placeholder="URL de Download">
+                    </div>
+                    
+                    <div id="edit-file-field" class="hidden">
+                        <div class="file-upload-container">
+                            <input type="file" id="edit-file-upload" accept=".apk,.apks,.zip,.rar,.7z" class="hidden">
+                            <button type="button" id="edit-file-select-btn" class="file-upload-btn">Selecionar APK</button>
+                            <span id="edit-file-name" class="file-name">Nenhum arquivo selecionado</span>
+                        </div>
+                        <small style="color: #718096; font-size: 0.8rem;">
+                            ⚠️ Arquivos APK são armazenados localmente no navegador.
+                        </small>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-success">Atualizar</button>
+                        <button type="button" id="cancel-edit-btn" class="btn btn-secondary">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+            
+            <div id="upload-message" class="alert hidden"></div>
+            <button id="add-item-btn" class="btn btn-primary hidden">Adicionar Novo Item</button>
+        </section>
+
+        <!-- Conteúdo Principal -->
+        <main id="main-content">
+            <header class="hero">
+                <h1>Executores e Scripts</h1>
+                <p>Encontre os melhores executores e scripts em um só lugar</p>
+                <button id="logout-btn" class="btn btn-outline hidden">Sair do Admin</button>
+            </header>
+
+            <!-- Seção de Executores -->
+            <section id="executors" class="section">
+                <h2>Executores Disponíveis</h2>
+                <div id="executors-grid" class="grid">
+                    <!-- Os executores serão carregados aqui via JavaScript -->
+                </div>
+            </section>
+
+            <!-- Seção de Scripts -->
+            <section id="scripts" class="section">
+                <h2>Scripts Disponíveis</h2>
+                <div id="scripts-grid" class="grid">
+                    <!-- Os scripts serão carregados aqui via JavaScript -->
+                </div>
+            </section>
+        </main>
     </div>
 
     <button id="logout-admin" class="logout-admin-btn btn btn-danger hidden">Sair</button>
@@ -19,7 +198,6 @@
     // Configuração
     const SECRET_CODE = "admin123";
     let currentUploadType = 'url';
-    let temporaryFileStorage = {}; // Armazena arquivos apenas durante a sessão
 
     // Inicialização quando o DOM estiver carregado
     document.addEventListener('DOMContentLoaded', function() {
@@ -56,10 +234,11 @@
             editFileField: document.getElementById('edit-file-field')
         };
 
-        // Armazenamento
+        // Armazenamento - CORREÇÃO: Carregar tanto os itens quanto os arquivos
         let publishedItems = JSON.parse(localStorage.getItem('publishedItems')) || [];
+        let fileStorage = JSON.parse(localStorage.getItem('fileStorage')) || {};
 
-        // Funções de Upload - CORREÇÕES APLICADAS AQUI
+        // Funções de Upload
         function setUploadType(type) {
             currentUploadType = type;
             
@@ -79,21 +258,11 @@
                 elements.fileField.classList.add('hidden');
                 elements.editUrlField.classList.remove('hidden');
                 elements.editFileField.classList.add('hidden');
-                
-                // Atualizar atributos required - CORREÇÃO: Remover required do file upload
-                elements.fileUpload.removeAttribute('required');
-                document.getElementById('download-url').setAttribute('required', 'true');
-                document.getElementById('edit-download-url').setAttribute('required', 'true');
             } else {
                 elements.urlField.classList.add('hidden');
                 elements.fileField.classList.remove('hidden');
                 elements.editUrlField.classList.add('hidden');
                 elements.editFileField.classList.remove('hidden');
-                
-                // Atualizar atributos required - CORREÇÃO: Remover required da URL
-                document.getElementById('download-url').removeAttribute('required');
-                document.getElementById('edit-download-url').removeAttribute('required');
-                // CORREÇÃO: Não adicionar required ao file upload pois causa problemas com validação nativa
             }
         }
 
@@ -113,9 +282,9 @@
                     return false;
                 }
 
-                // Verificar tamanho do arquivo (máximo 50MB para demonstração)
-                if (file.size > 50 * 1024 * 1024) {
-                    showAlert('Arquivo muito grande. Use URLs externas para arquivos grandes.', true);
+                // Verificar tamanho do arquivo (máximo 10MB para evitar problemas de armazenamento)
+                if (file.size > 10 * 1024 * 1024) {
+                    showAlert('Arquivo muito grande. Máximo 10MB permitido.', true);
                     fileInput.value = '';
                     fileNameElement.textContent = 'Nenhum arquivo selecionado';
                     return false;
@@ -125,20 +294,26 @@
             return false;
         }
 
-        function saveFileToTemporaryStorage(file) {
+        // CORREÇÃO: Função para salvar arquivo no localStorage
+        function saveFileToStorage(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 
                 reader.onload = function(e) {
                     try {
-                        const fileId = 'temp_file_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                        temporaryFileStorage[fileId] = {
+                        const fileId = 'file_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                        
+                        // Armazenar no fileStorage
+                        fileStorage[fileId] = {
                             name: file.name,
                             type: file.type,
                             size: file.size,
                             data: e.target.result,
                             uploadDate: new Date().toISOString()
                         };
+                        
+                        // Salvar no localStorage
+                        localStorage.setItem('fileStorage', JSON.stringify(fileStorage));
                         
                         resolve({ 
                             fileId, 
@@ -157,10 +332,11 @@
             });
         }
 
-        function downloadTemporaryFile(fileId) {
-            const fileData = temporaryFileStorage[fileId];
+        // CORREÇÃO: Função para baixar arquivo do storage
+        function downloadStoredFile(fileId) {
+            const fileData = fileStorage[fileId];
             if (!fileData) {
-                throw new Error('Arquivo não encontrado no armazenamento temporário');
+                throw new Error('Arquivo não encontrado no armazenamento');
             }
 
             // Criar link de download usando DataURL
@@ -170,6 +346,14 @@
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
+        }
+
+        // CORREÇÃO: Função para remover arquivo do storage
+        function removeFileFromStorage(fileId) {
+            if (fileStorage[fileId]) {
+                delete fileStorage[fileId];
+                localStorage.setItem('fileStorage', JSON.stringify(fileStorage));
+            }
         }
 
         // Funções Auxiliares
@@ -203,6 +387,7 @@
             elements.uploadSection.classList.remove('hidden');
             elements.logoutBtn.classList.remove('hidden');
             elements.logoutAdminBtn.classList.remove('hidden');
+            elements.addItemBtn.classList.remove('hidden');
         }
 
         function hideUploadSection() {
@@ -210,6 +395,7 @@
             elements.uploadSection.classList.add('hidden');
             elements.logoutBtn.classList.add('hidden');
             elements.logoutAdminBtn.classList.add('hidden');
+            elements.addItemBtn.classList.add('hidden');
         }
 
         function showEditForm(itemId) {
@@ -224,9 +410,11 @@
             if (item.fileId) {
                 setUploadType('file');
                 document.getElementById('edit-file-name').textContent = item.fileName || 'Arquivo carregado';
+                document.getElementById('edit-download-url').value = '';
             } else {
                 setUploadType('url');
                 document.getElementById('edit-download-url').value = item.downloadUrl || '';
+                document.getElementById('edit-file-name').textContent = 'Nenhum arquivo selecionado';
             }
 
             elements.uploadFormContainer.classList.add('hidden');
@@ -237,7 +425,6 @@
         function hideEditForm() {
             elements.uploadFormContainer.classList.remove('hidden');
             elements.editFormContainer.classList.add('hidden');
-            elements.addItemBtn.classList.remove('hidden');
             elements.uploadForm.reset();
             elements.fileName.textContent = 'Nenhum arquivo selecionado';
             setUploadType('url');
@@ -285,6 +472,7 @@
                 <div class="card-body">
                     <p>${item.description}</p>
                     <div class="date">Publicado em: ${new Date(item.date).toLocaleDateString('pt-BR')}</div>
+                    ${item.fileName ? `<div class="date">Arquivo: ${item.fileName}</div>` : ''}
                 </div>
                 <div class="card-actions">
                     <button class="btn btn-primary download-btn" data-id="${item.id}">
@@ -372,7 +560,7 @@
                 });
             });
 
-            // CORREÇÃO PRINCIPAL: Formulário de upload
+            // CORREÇÃO: Formulário de upload
             elements.uploadForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
@@ -397,19 +585,17 @@
                             return;
                         }
                     } else {
-                        // CORREÇÃO: Verificar se um arquivo foi selecionado
                         if (!elements.fileUpload.files.length) {
                             showAlert('Por favor, selecione um arquivo.', true);
                             return;
                         }
                         
-                        // CORREÇÃO: Validar o arquivo antes de processar
                         if (!handleFileSelect(elements.fileUpload, elements.fileName)) {
                             return;
                         }
                         
                         const file = elements.fileUpload.files[0];
-                        const result = await saveFileToTemporaryStorage(file);
+                        const result = await saveFileToStorage(file);
                         fileId = result.fileId;
                         fileName = result.fileName;
                     }
@@ -460,9 +646,10 @@
                         return;
                     }
 
-                    let downloadUrl = publishedItems[itemIndex].downloadUrl;
-                    let fileId = publishedItems[itemIndex].fileId;
-                    let fileName = publishedItems[itemIndex].fileName;
+                    const oldItem = publishedItems[itemIndex];
+                    let downloadUrl = oldItem.downloadUrl;
+                    let fileId = oldItem.fileId;
+                    let fileName = oldItem.fileName;
 
                     if (currentUploadType === 'url') {
                         downloadUrl = document.getElementById('edit-download-url').value.trim();
@@ -471,30 +658,33 @@
                             return;
                         }
                         // Limpar dados de arquivo se estiver mudando para URL
-                        fileId = '';
-                        fileName = '';
+                        if (fileId) {
+                            removeFileFromStorage(fileId);
+                            fileId = '';
+                            fileName = '';
+                        }
                     } else {
-                        // CORREÇÃO: Se estiver no modo arquivo, verificar se um novo arquivo foi selecionado
                         if (elements.editFileUpload.files.length) {
                             // Validar o novo arquivo
                             if (!handleFileSelect(elements.editFileUpload, elements.editFileName)) {
                                 return;
                             }
+                            // Remover arquivo antigo se existir
+                            if (fileId) {
+                                removeFileFromStorage(fileId);
+                            }
                             const file = elements.editFileUpload.files[0];
-                            const result = await saveFileToTemporaryStorage(file);
+                            const result = await saveFileToStorage(file);
                             fileId = result.fileId;
                             fileName = result.fileName;
-                        }
-                        // Se não selecionou novo arquivo, mantém o existente
-                        // CORREÇÃO: Se não há arquivo existente nem novo, mostrar erro
-                        else if (!fileId) {
+                        } else if (!fileId) {
                             showAlert('Por favor, selecione um arquivo ou altere para URL.', true);
                             return;
                         }
                     }
 
                     publishedItems[itemIndex] = {
-                        ...publishedItems[itemIndex],
+                        ...oldItem,
                         title,
                         description,
                         type,
@@ -527,7 +717,7 @@
                     if (item) {
                         if (item.fileId) {
                             try {
-                                downloadTemporaryFile(item.fileId);
+                                downloadStoredFile(item.fileId);
                                 showAlert('Download iniciado!', false);
                             } catch (error) {
                                 showAlert('Erro ao baixar arquivo: ' + error.message, true);
@@ -550,6 +740,10 @@
                 if (e.target.classList.contains('delete-btn')) {
                     const itemId = e.target.dataset.id;
                     if (confirm('Tem certeza que deseja excluir este item?')) {
+                        const item = publishedItems.find(item => item.id === itemId);
+                        if (item && item.fileId) {
+                            removeFileFromStorage(item.fileId);
+                        }
                         publishedItems = publishedItems.filter(item => item.id !== itemId);
                         if (saveItems()) {
                             showAlert('Item excluído com sucesso!', false);
