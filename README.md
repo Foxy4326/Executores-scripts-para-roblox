@@ -349,6 +349,127 @@
             document.body.removeChild(a);
         }
 
+        // Funções Auxiliares
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function showAlert(message, isError = false) {
+            const alertElement = isError ? elements.authMessage : elements.uploadMessage;
+            alertElement.textContent = message;
+            alertElement.className = `alert ${isError ? 'alert-error' : 'alert-success'}`;
+            alertElement.classList.remove('hidden');
+            
+            setTimeout(() => {
+                alertElement.classList.add('hidden');
+            }, 5000);
+        }
+
+        function showUploadSection() {
+            elements.authSection.classList.add('hidden');
+            elements.uploadSection.classList.remove('hidden');
+            elements.logoutBtn.classList.remove('hidden');
+            elements.logoutAdminBtn.classList.remove('hidden');
+        }
+
+        function hideUploadSection() {
+            elements.authSection.classList.remove('hidden');
+            elements.uploadSection.classList.add('hidden');
+            elements.logoutBtn.classList.add('hidden');
+            elements.logoutAdminBtn.classList.add('hidden');
+        }
+
+        function showEditForm(itemId) {
+            const item = publishedItems.find(item => item.id === itemId);
+            if (!item) return;
+
+            document.getElementById('edit-id').value = item.id;
+            document.getElementById('edit-title').value = item.title;
+            document.getElementById('edit-description').value = item.description;
+            document.getElementById('edit-type').value = item.type;
+            
+            if (item.fileId) {
+                setUploadType('file');
+                document.getElementById('edit-file-name').textContent = item.fileName || 'Arquivo carregado';
+            } else {
+                setUploadType('url');
+                document.getElementById('edit-download-url').value = item.downloadUrl || '';
+            }
+
+            elements.uploadFormContainer.classList.add('hidden');
+            elements.editFormContainer.classList.remove('hidden');
+            elements.addItemBtn.classList.remove('hidden');
+        }
+
+        function hideEditForm() {
+            elements.uploadFormContainer.classList.remove('hidden');
+            elements.editFormContainer.classList.add('hidden');
+            elements.addItemBtn.classList.remove('hidden');
+            elements.uploadForm.reset();
+            elements.fileName.textContent = 'Nenhum arquivo selecionado';
+            setUploadType('url');
+        }
+
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        function renderItems() {
+            // Limpar grids
+            elements.executorsGrid.innerHTML = '';
+            elements.scriptsGrid.innerHTML = '';
+
+            // Separar itens por tipo
+            const executors = publishedItems.filter(item => item.type === 'executor');
+            const scripts = publishedItems.filter(item => item.type === 'script');
+
+            // Renderizar executores
+            if (executors.length === 0) {
+                elements.executorsGrid.innerHTML = '<div class="empty-message">Nenhum executor disponível no momento.</div>';
+            } else {
+                executors.forEach(item => {
+                    elements.executorsGrid.appendChild(createItemCard(item));
+                });
+            }
+
+            // Renderizar scripts
+            if (scripts.length === 0) {
+                elements.scriptsGrid.innerHTML = '<div class="empty-message">Nenhum script disponível no momento.</div>';
+            } else {
+                scripts.forEach(item => {
+                    elements.scriptsGrid.appendChild(createItemCard(item));
+                });
+            }
+        }
+
+        function createItemCard(item) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <div class="card-header">
+                    <h3>${item.title}</h3>
+                </div>
+                <div class="card-body">
+                    <p>${item.description}</p>
+                    <div class="date">Publicado em: ${new Date(item.date).toLocaleDateString('pt-BR')}</div>
+                </div>
+                <div class="card-actions">
+                    <button class="btn btn-primary download-btn" data-id="${item.id}">
+                        ${item.fileId ? 'Baixar Arquivo' : 'Acessar Link'}
+                    </button>
+                    ${localStorage.getItem('authenticated') === 'true' ? `
+                        <button class="btn btn-warning btn-small edit-btn" data-id="${item.id}">Editar</button>
+                        <button class="btn btn-danger btn-small delete-btn" data-id="${item.id}">Excluir</button>
+                    ` : ''}
+                </div>
+            `;
+            return card;
+        }
+
         // Funções Principais
         function saveItems() {
             try {
@@ -368,397 +489,242 @@
             }
         }
 
-        function showUploadSection() {
-            elements.authSection.classList.add('hidden');
-            elements.uploadSection.classList.remove('hidden');
-            elements.logoutBtn.classList.remove('hidden');
-            elements.logoutAdminBtn.classList.remove('hidden');
-        }
-
-        function hideUploadSection() {
-            elements.authSection.classList.remove('hidden');
-            elements.uploadSection.classList.add('hidden');
-            elements.logoutBtn.classList.add('hidden');
-            elements.logoutAdminBtn.classList.add('hidden');
-            localStorage.removeItem('authenticated');
-        }
-
-        function displayPublishedItems() {
-            displayItemsInGrid(elements.executorsGrid, 'executor');
-            displayItemsInGrid(elements.scriptsGrid, 'script');
-        }
-
-        function displayItemsInGrid(gridElement, type) {
-            gridElement.innerHTML = '';
-            const items = publishedItems.filter(i => i.type === type);
-            
-            if (items.length === 0) {
-                gridElement.innerHTML = `<div class="empty-message">Nenhum ${type} publicado ainda.</div>`;
-                return;
-            }
-
-            items.forEach(item => {
-                const card = createCard(item);
-                gridElement.appendChild(card);
-            });
-        }
-
-        function createCard(item) {
-            const card = document.createElement('div');
-            card.className = 'card';
-            
-            const dateText = item.lastUpdate 
-                ? `Atualizado em: ${item.lastUpdate}` 
-                : `Publicado em: ${item.date || new Date().toLocaleDateString('pt-BR')}`;
-            
-            const isAdmin = localStorage.getItem('authenticated') === 'true';
-            const adminButtons = isAdmin ? `
-                <div class="card-actions">
-                    <button class="btn btn-warning btn-small edit-btn" data-id="${item.id}">Editar</button>
-                    <button class="btn btn-danger btn-small delete-btn" data-id="${item.id}">Excluir</button>
-                </div>
-            ` : '';
-
-            const fileInfo = item.fileSize ? `
-                <div style="font-size: 0.8rem; color: #718096; margin-top: 5px;">
-                    <div>Tamanho: ${formatFileSize(item.fileSize)}</div>
-                    <div>Nome: ${item.fileName}</div>
-                    ${item.downloadType === 'file' ? '<div>⚠️ Arquivo temporário (apenas esta sessão)</div>' : ''}
-                </div>
-            ` : '';
-
-            card.innerHTML = `
-                <div class="card-header">
-                    <h3>${escapeHtml(item.title)}</h3>
-                </div>
-                <div class="card-body">
-                    <p>${escapeHtml(item.description)}</p>
-                    <p class="date">${dateText}</p>
-                    ${fileInfo}
-                    <button class="btn download-btn" data-id="${item.id}">
-                        ${item.type === 'executor' ? '📱 Baixar APK' : '📜 Baixar Script'}
-                    </button>
-                    ${adminButtons}
-                </div>
-            `;
-
-            // Evento de download
-            const downloadBtn = card.querySelector('.download-btn');
-            downloadBtn.addEventListener('click', () => handleDownload(item));
-
-            // Eventos de admin
-            if (isAdmin) {
-                const editBtn = card.querySelector('.edit-btn');
-                const deleteBtn = card.querySelector('.delete-btn');
-                
-                if (editBtn) editBtn.addEventListener('click', () => showEditForm(item.id));
-                if (deleteBtn) deleteBtn.addEventListener('click', () => deleteItem(item.id));
-            }
-            
-            return card;
-        }
-
-        function handleDownload(item) {
-            console.log('Iniciando download:', item);
-            
-            if (item.downloadType === 'file' && item.fileId) {
-                // Download de arquivo local temporário
-                try {
-                    if (temporaryFileStorage[item.fileId]) {
-                        downloadTemporaryFile(item.fileId);
-                        showAlert('Download iniciado!');
-                    } else {
-                        showAlert('Arquivo não disponível. Faça upload novamente.', true);
-                    }
-                } catch (error) {
-                    console.error('Erro no download:', error);
-                    showAlert('Erro ao baixar arquivo: ' + error.message, true);
-                }
-            } else {
-                // Download por URL externa
-                if (item.downloadUrl && item.downloadUrl !== '#') {
-                    window.open(item.downloadUrl, '_blank');
-                    showAlert('Abrindo link de download...');
-                } else {
-                    showAlert('Link de download não disponível.', true);
-                }
-            }
-        }
-
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        function formatFileSize(bytes) {
-            if (!bytes || bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-        }
-
-        function deleteItem(id) {
-            if (!confirm('Tem certeza que deseja excluir este item?')) return;
-
-            const item = publishedItems.find(i => i.id === id);
-            if (item) {
-                // Limpar arquivo temporário se existir
-                if (item.fileId && temporaryFileStorage[item.fileId]) {
-                    delete temporaryFileStorage[item.fileId];
-                }
-                
-                publishedItems = publishedItems.filter(i => i.id !== id);
-                if (saveItems()) {
-                    displayPublishedItems();
-                    showAlert('Item excluído com sucesso.');
-                }
-            }
-        }
-
-        function showEditForm(id) {
-            const item = publishedItems.find(i => i.id === id);
-            if (!item) return;
-
-            document.getElementById('edit-id').value = id;
-            document.getElementById('edit-title').value = item.title;
-            document.getElementById('edit-description').value = item.description;
-            document.getElementById('edit-type').value = item.type;
-
-            if (item.fileId) {
-                setUploadType('file');
-                elements.editFileName.textContent = `${item.fileName} (${formatFileSize(item.fileSize)})`;
-                document.getElementById('edit-download-url').value = '';
-            } else {
-                setUploadType('url');
-                document.getElementById('edit-download-url').value = item.downloadUrl;
-                elements.editFileName.textContent = 'Nenhum arquivo selecionado';
-            }
-
-            elements.uploadFormContainer.classList.add('hidden');
-            elements.editFormContainer.classList.remove('hidden');
-            elements.editFormContainer.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function cancelEdit() {
-            elements.editFormContainer.classList.add('hidden');
-            elements.uploadFormContainer.classList.remove('hidden');
-            elements.editForm.reset();
-            setUploadType('url');
-        }
-
-        function showAlert(message, isError = false) {
-            if (!elements.uploadMessage) return;
-            
-            elements.uploadMessage.textContent = message;
-            elements.uploadMessage.className = isError ? 'alert alert-error' : 'alert alert-success';
-            elements.uploadMessage.classList.remove('hidden');
-            
-            setTimeout(() => {
-                elements.uploadMessage.classList.add('hidden');
-            }, 4000);
-        }
-
-        function handleLogout() {
-            hideUploadSection();
-            displayPublishedItems();
-        }
-
         // Event Listeners
-        function initializeEventListeners() {
-            console.log('Inicializando event listeners...');
-
-            // Upload type buttons
-            elements.uploadTypeBtns.forEach(btn => {
-                btn.addEventListener('click', () => setUploadType(btn.dataset.type));
-            });
-
-            const editUploadTypeBtns = document.querySelectorAll('#edit-form-container .upload-type-btn');
-            editUploadTypeBtns.forEach(btn => {
-                btn.addEventListener('click', () => setUploadType(btn.dataset.type));
-            });
-
-            // File selection
-            elements.fileSelectBtn.addEventListener('click', () => elements.fileUpload.click());
-            elements.fileUpload.addEventListener('change', () => handleFileSelect(elements.fileUpload, elements.fileName));
-            
-            elements.editFileSelectBtn.addEventListener('click', () => elements.editFileUpload.click());
-            elements.editFileUpload.addEventListener('change', () => handleFileSelect(elements.editFileUpload, elements.editFileName));
-
-            // Authentication
-            elements.authForm.addEventListener('submit', (e) => {
+        function initEventListeners() {
+            // Autenticação
+            elements.authForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 const code = elements.accessCodeInput.value.trim();
                 
                 if (code === SECRET_CODE) {
                     localStorage.setItem('authenticated', 'true');
                     showUploadSection();
-                    elements.authMessage.classList.add('hidden');
-                    displayPublishedItems();
+                    showAlert('Autenticado com sucesso!', false);
+                    renderItems();
                 } else {
-                    elements.authMessage.textContent = 'Código de acesso incorreto. Tente novamente.';
-                    elements.authMessage.classList.remove('hidden');
-                    elements.accessCodeInput.value = '';
+                    showAlert('Código de acesso incorreto!', true);
                 }
             });
 
             // Logout
-            elements.logoutBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                handleLogout();
+            elements.logoutBtn.addEventListener('click', function() {
+                localStorage.removeItem('authenticated');
+                hideUploadSection();
+                renderItems();
             });
 
-            elements.logoutAdminBtn.addEventListener('click', handleLogout);
+            elements.logoutAdminBtn.addEventListener('click', function() {
+                localStorage.removeItem('authenticated');
+                hideUploadSection();
+                renderItems();
+            });
 
-            // Upload form
-            elements.uploadForm.addEventListener('submit', async (e) => {
+            // Upload de arquivos
+            elements.fileSelectBtn.addEventListener('click', function() {
+                elements.fileUpload.click();
+            });
+
+            elements.fileUpload.addEventListener('change', function() {
+                handleFileSelect(this, elements.fileName);
+            });
+
+            elements.editFileSelectBtn.addEventListener('click', function() {
+                elements.editFileUpload.click();
+            });
+
+            elements.editFileUpload.addEventListener('change', function() {
+                handleFileSelect(this, elements.editFileName);
+            });
+
+            // Seletor de tipo de upload
+            elements.uploadTypeBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    setUploadType(this.dataset.type);
+                });
+            });
+
+            // Formulário de upload
+            elements.uploadForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
                 const title = document.getElementById('title').value.trim();
                 const description = document.getElementById('description').value.trim();
                 const type = document.getElementById('type').value;
-
+                
                 if (!title || !description || !type) {
-                    showAlert('Preencha todos os campos', true);
+                    showAlert('Por favor, preencha todos os campos.', true);
                     return;
                 }
 
-                let downloadUrl = '', fileId = null, fileNameText = '', fileSize = 0;
+                let downloadUrl = '';
+                let fileId = '';
+                let fileName = '';
 
                 try {
                     if (currentUploadType === 'url') {
                         downloadUrl = document.getElementById('download-url').value.trim();
                         if (!downloadUrl) {
-                            showAlert('Informe a URL de download', true);
+                            showAlert('Por favor, forneça uma URL válida.', true);
                             return;
                         }
                     } else {
-                        if (!elements.fileUpload.files || elements.fileUpload.files.length === 0) {
-                            showAlert('Selecione um arquivo APK para upload', true);
+                        if (!elements.fileUpload.files.length) {
+                            showAlert('Por favor, selecione um arquivo.', true);
                             return;
                         }
-
+                        
                         const file = elements.fileUpload.files[0];
-                        if (!handleFileSelect(elements.fileUpload, elements.fileName)) {
-                            return;
-                        }
-
                         const result = await saveFileToTemporaryStorage(file);
                         fileId = result.fileId;
-                        fileNameText = result.fileName;
-                        fileSize = file.size;
-                        downloadUrl = '#'; // Placeholder para arquivos locais
+                        fileName = result.fileName;
                     }
 
                     const newItem = {
-                        id: Date.now(),
+                        id: generateId(),
                         title,
                         description,
                         type,
                         downloadUrl,
-                        downloadType: currentUploadType,
                         fileId,
-                        fileName: fileNameText,
-                        fileSize,
-                        date: new Date().toLocaleDateString('pt-BR')
+                        fileName,
+                        date: new Date().toISOString()
                     };
 
                     publishedItems.push(newItem);
                     
                     if (saveItems()) {
-                        displayPublishedItems();
+                        showAlert('Item publicado com sucesso!', false);
                         elements.uploadForm.reset();
                         elements.fileName.textContent = 'Nenhum arquivo selecionado';
-                        elements.fileUpload.value = '';
                         setUploadType('url');
-                        showAlert('Conteúdo publicado com sucesso!');
+                        renderItems();
                     }
                 } catch (error) {
-                    console.error('Erro no upload:', error);
-                    showAlert('Erro ao publicar conteúdo: ' + error.message, true);
+                    showAlert('Erro ao publicar item: ' + error.message, true);
                 }
             });
 
-            // Edit form
-            elements.editForm.addEventListener('submit', async (e) => {
+            // Formulário de edição
+            elements.editForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
-                const id = parseInt(document.getElementById('edit-id').value);
-                const item = publishedItems.find(i => i.id === id);
-                if (!item) return;
-
-                item.title = document.getElementById('edit-title').value.trim();
-                item.description = document.getElementById('edit-description').value.trim();
-                item.type = document.getElementById('edit-type').value;
+                const id = document.getElementById('edit-id').value;
+                const title = document.getElementById('edit-title').value.trim();
+                const description = document.getElementById('edit-description').value.trim();
+                const type = document.getElementById('edit-type').value;
+                
+                if (!title || !description || !type) {
+                    showAlert('Por favor, preencha todos os campos.', true);
+                    return;
+                }
 
                 try {
-                    if (currentUploadType === 'url') {
-                        // Limpar arquivo anterior se existir
-                        if (item.fileId && temporaryFileStorage[item.fileId]) {
-                            delete temporaryFileStorage[item.fileId];
-                            item.fileId = null;
-                            item.fileName = '';
-                            item.fileSize = 0;
-                        }
-                        item.downloadUrl = document.getElementById('edit-download-url').value.trim();
-                        if (!item.downloadUrl) {
-                            showAlert('Informe a URL de download', true);
-                            return;
-                        }
-                    } else {
-                        if (elements.editFileUpload.files && elements.editFileUpload.files.length > 0) {
-                            const file = elements.editFileUpload.files[0];
-                            const result = await saveFileToTemporaryStorage(file);
-                            
-                            // Limpar arquivo anterior
-                            if (item.fileId && temporaryFileStorage[item.fileId]) {
-                                delete temporaryFileStorage[item.fileId];
-                            }
-                            
-                            item.fileId = result.fileId;
-                            item.fileName = result.fileName;
-                            item.fileSize = file.size;
-                            item.downloadUrl = '#'; // Placeholder para arquivos locais
-                        }
+                    const itemIndex = publishedItems.findIndex(item => item.id === id);
+                    if (itemIndex === -1) {
+                        showAlert('Item não encontrado.', true);
+                        return;
                     }
 
-                    item.downloadType = currentUploadType;
-                    item.lastUpdate = new Date().toLocaleDateString('pt-BR');
-                    
+                    let downloadUrl = publishedItems[itemIndex].downloadUrl;
+                    let fileId = publishedItems[itemIndex].fileId;
+                    let fileName = publishedItems[itemIndex].fileName;
+
+                    if (currentUploadType === 'url') {
+                        downloadUrl = document.getElementById('edit-download-url').value.trim();
+                        if (!downloadUrl) {
+                            showAlert('Por favor, forneça uma URL válida.', true);
+                            return;
+                        }
+                        // Limpar dados de arquivo se estiver mudando para URL
+                        fileId = '';
+                        fileName = '';
+                    } else {
+                        if (elements.editFileUpload.files.length) {
+                            const file = elements.editFileUpload.files[0];
+                            const result = await saveFileToTemporaryStorage(file);
+                            fileId = result.fileId;
+                            fileName = result.fileName;
+                        }
+                        // Se não selecionou novo arquivo, mantém o existente
+                    }
+
+                    publishedItems[itemIndex] = {
+                        ...publishedItems[itemIndex],
+                        title,
+                        description,
+                        type,
+                        downloadUrl,
+                        fileId,
+                        fileName
+                    };
+
                     if (saveItems()) {
-                        displayPublishedItems();
-                        cancelEdit();
-                        showAlert('Conteúdo atualizado com sucesso!');
+                        showAlert('Item atualizado com sucesso!', false);
+                        hideEditForm();
+                        renderItems();
                     }
                 } catch (error) {
-                    console.error('Erro na edição:', error);
-                    showAlert('Erro ao atualizar conteúdo: ' + error.message, true);
+                    showAlert('Erro ao atualizar item: ' + error.message, true);
                 }
             });
 
-            // Cancel edit
-            elements.cancelEditBtn.addEventListener('click', cancelEdit);
+            // Cancelar edição
+            elements.cancelEditBtn.addEventListener('click', hideEditForm);
+            elements.addItemBtn.addEventListener('click', hideEditForm);
 
-            // Add new item
-            elements.addItemBtn.addEventListener('click', () => {
-                cancelEdit();
-                elements.uploadFormContainer.scrollIntoView({ behavior: 'smooth' });
+            // Delegation para botões dinâmicos
+            document.addEventListener('click', function(e) {
+                // Download
+                if (e.target.classList.contains('download-btn')) {
+                    const itemId = e.target.dataset.id;
+                    const item = publishedItems.find(item => item.id === itemId);
+                    
+                    if (item) {
+                        if (item.fileId) {
+                            try {
+                                downloadTemporaryFile(item.fileId);
+                                showAlert('Download iniciado!', false);
+                            } catch (error) {
+                                showAlert('Erro ao baixar arquivo: ' + error.message, true);
+                            }
+                        } else if (item.downloadUrl) {
+                            window.open(item.downloadUrl, '_blank');
+                        } else {
+                            showAlert('Nenhum link ou arquivo disponível para download.', true);
+                        }
+                    }
+                }
+
+                // Editar
+                if (e.target.classList.contains('edit-btn')) {
+                    const itemId = e.target.dataset.id;
+                    showEditForm(itemId);
+                }
+
+                // Excluir
+                if (e.target.classList.contains('delete-btn')) {
+                    const itemId = e.target.dataset.id;
+                    if (confirm('Tem certeza que deseja excluir este item?')) {
+                        publishedItems = publishedItems.filter(item => item.id !== itemId);
+                        if (saveItems()) {
+                            showAlert('Item excluído com sucesso!', false);
+                            renderItems();
+                        }
+                    }
+                }
             });
         }
 
-        // Inicializar a aplicação
-        initializeEventListeners();
-        checkAuthStatus();
-        displayPublishedItems();
-        setUploadType('url');
-        console.log('Aplicação inicializada com sucesso!');
-    });
+        // Inicialização
+        function init() {
+            initEventListeners();
+            checkAuthStatus();
+            renderItems();
+            setUploadType('url');
+        }
 
-    // Tratamento de erros globais
-    window.addEventListener('error', (e) => {
-        console.error('Erro global:', e.error);
+        // Iniciar aplicação
+        init();
     });
     </script>
 </body>
